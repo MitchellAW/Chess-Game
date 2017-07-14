@@ -1,12 +1,18 @@
 
 public class King extends Piece {
-	private Move[] moves;
-	
-	public King(Move[] moves, String colour) {
-		super(new Position(0, 0), colour, 100);
-		this.moves = moves;
+	private int[][] moves;
+
+	public King(Position position, String colour) {
+		super(position, colour, 100);
 	}
-	public Move[] getMoves() {
+	public int[][] getMoves() {
 		return this.moves;
+	}
+	public String toString() {
+		if (this.getColour().equals("White")) {
+			return "♔";
+		} else {
+			return "♚";
+		}
 	}
 }

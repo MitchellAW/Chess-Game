@@ -1,12 +1,18 @@
 
 public class Pawn extends Piece {
-	private Move[] moves;
-	
-	public Pawn(Move[] moves, String colour) {
-		super(new Position('a',1), colour, 1);
-		this.moves = moves;
+	private int[][] moves = {{1, 1}};
+
+	public Pawn(Position position, String colour) {
+		super(position, colour, 1);
 	}
-	public Move[] getMoves() {
+	public int[][] getMoves() {
 		return this.moves;
+	}
+	public String toString() {
+		if (this.getColour().equals("White")) {
+			return "♙";
+		} else {
+			return "♟";
+		}
 	}
 }

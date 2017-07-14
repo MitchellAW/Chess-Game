@@ -1,12 +1,18 @@
 
 public class Rook extends Piece {
-	private Move[] moves;
-	
-	public Rook(Move[] moves, String colour) {
-		super(new Position(0, 0), colour, 5);
-		this.moves = moves;
+	private int[][] moves;
+
+	public Rook(Position position, String colour) {
+		super(position, colour, 5);
 	}
-	public Move[] getMoves() {
+	public int[][] getMoves() {
 		return this.moves;
+	}
+	public String toString() {
+		if (this.getColour().equals("White")) {
+			return "♖";
+		} else {
+			return "♜";
+		}
 	}
 }

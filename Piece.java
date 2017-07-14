@@ -23,5 +23,5 @@ public abstract class Piece {
 	public int getValue() {
 		return this.value;
 	}
-	public abstract Move[] getMoves();
+	public abstract int[][] getMoves();
 }

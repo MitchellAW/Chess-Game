@@ -1,12 +1,18 @@
 
 public class Bishop extends Piece {
-	private Move[] moves;
-	
-	public Bishop(Move[] moves, String colour) {
-		super(new Position(0, 0), colour, 3);
-		this.moves = moves;
+	private int[][] moves;
+
+	public Bishop(Position position, String colour) {
+		super(position, colour, 3);
 	}
-	public Move[] getMoves() {
+	public int[][] getMoves() {
 		return this.moves;
+	}
+	public String toString() {
+		if (this.getColour().equals("White")) {
+			return "♗";
+		} else {
+			return "♝";
+		}
 	}
 }

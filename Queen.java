@@ -1,12 +1,18 @@
 
 public class Queen extends Piece {
-	private Move[] moves;
-	
-	public Queen(Move[] moves, String colour) {
-		super(new Position(0, 0), colour, 10);
-		this.moves = moves;
+	private int[][] moves;
+
+	public Queen(Position position, String colour) {
+		super(position, colour, 10);
 	}
-	public Move[] getMoves() {
+	public int[][] getMoves() {
 		return this.moves;
+	}
+	public String toString() {
+		if (this.getColour().equals("White")) {
+			return "♕";
+		} else {
+			return "♛";
+		}
 	}
 }

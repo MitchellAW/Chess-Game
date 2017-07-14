@@ -16,6 +16,7 @@ public class Position {
 	public String toString() {
 		return "" + column + row;
 	}
+	// Takes integer from 1-8 to choose direction (1=North, 5=South)
 	public void moveDirection(int direction, int distance) {
 		switch (direction) {
 		// Move North

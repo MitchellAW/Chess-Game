@@ -14,6 +14,9 @@ public abstract class Piece {
 	public Position getPosition() {
 		return this.position;
 	}
+	public void setPosition(Position position) {
+		this.position = position;
+	}
 	public String getColour() {
 		return this.colour;
 	}

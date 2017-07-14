@@ -4,7 +4,6 @@ public class Board {
 	private static final int COLUMNS = 8;
 	
 	Piece[][] board = new Piece[COLUMNS][COLUMNS];
-	Move[] move = new Move[1];
 
 	public Board() {
 	}

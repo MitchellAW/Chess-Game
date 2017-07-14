@@ -1,24 +1,33 @@
 
-public class Piece {
-	public enum COLOUR {BLACK, WHITE};
-	public enum RANK {KING, QUEEN, KNIGHT, BISHOP, ROOK, PAWN};
-	
-	private COLOUR colour;
-	private RANK rank;
-	private Move[] moves;
+public class Piece {	
 
-	public Piece(COLOUR colour, RANK rank, Move[] moves) {
+	private String colour;
+	private Position position;
+
+	private int value;
+
+	private Move[] moves;
+	private int[] directions;
+
+	public Piece(Position position, String colour, int[] directions, int value) {
+		this.position = position;
 		this.colour = colour;
-		this.rank = rank;
-		this.moves = moves;
+		this.directions = directions;
+		this.value = value;
 	}
-	public COLOUR getColour() {
-		return this.colour;
+	public int getNumOfDirections() {
+		return this.directions.length;
 	}
-	public RANK getType() {
-		return this.rank;
+	public int[] getDirections() {
+		return this.directions;
 	}
 	public Move[] getMoves() {
 		return this.moves;
+	}
+	public Position getPosition() {
+		return this.position;
+	}
+	public String getColour() {
+		return this.colour;
 	}
 }

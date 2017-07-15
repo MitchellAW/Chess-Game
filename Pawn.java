@@ -1,5 +1,6 @@
 
 public class Pawn extends Piece {
+	// direction, distance
 	private int[][] moves = {{1, 1}};
 
 	public Pawn(Position position, String colour) {

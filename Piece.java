@@ -24,4 +24,10 @@ public abstract class Piece {
 		return this.value;
 	}
 	public abstract int[][] getMoves();
+
+	public void move(Board board, int direction, int distance) {
+		if (this.position.positionAt(direction, distance).isValid()) {
+			this.position = this.position.moveDirection(direction, distance);
+		}
+	}
 }

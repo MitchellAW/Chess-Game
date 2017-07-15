@@ -1,13 +1,13 @@
 
 public class Board {
-	public static final int ROWS = 8;
-	public static final int COLUMNS = 8;
 
-	public Object[][] board = new Object[ROWS][COLUMNS];
+	private Object[][] board = new Object[8][8];
 
 	public Board() {
 	}
-
+	public Object[][] getBoard() {
+		return this.board;
+	}
 	public void reset() {
 		for (int i=0; i<8; i++) {
 			this.board[1][i] = new Pawn(new Position((char)(i + 97), 1), "Black");
@@ -32,8 +32,14 @@ public class Board {
 			this.board[7*i][7] = new Rook(new Position('h', 8 - (8*i)), currentColour);
 		}
 	}
-	public boolean spotAvailable() {
-		return true;
+	public boolean spotAvailable(Position position) {
+		int[] points = position.getIndexes();
+		
+		if (position.isValid() &&
+				this.board[points[1]][points[0]].equals(" ")) {
+			return true;	
+		}
+		return false;
 	}
 	public boolean isCheckmate() {
 		return true;
@@ -43,12 +49,14 @@ public class Board {
 	}
 	public String toString() {
 		String boardString = "";
-		for (int i=0; i<ROWS; i++) {
-			for (int j=0; j<COLUMNS; j++) {
-				boardString += board[i][j];
+		for (int i=0; i<8; i++) {
+			for (int j=0; j<8; j++) {
+				boardString += "|" + board[i][j] + "";
 			}
-			if (i != ROWS - 1) {
-				boardString += "\n";
+			if (i != 8 - 1) {
+				boardString += "|\n";
+			} else {
+				boardString += "|";
 			}
 		}
 		return boardString;

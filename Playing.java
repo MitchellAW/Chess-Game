@@ -1,7 +1,7 @@
 
 public class Playing {
 	public Playing() {
-		Pawn test1 = new Pawn(new Position('d', 5), "Black");
+		Pawn test1 = new Pawn(new Position('d', 2), "White");
 		Bishop test2 = new Bishop(new Position('d', 5), "Black");
 		King test3 = new King(new Position('d', 5), "Black");
 		Queen test4 = new Queen(new Position('d', 5), "Black");

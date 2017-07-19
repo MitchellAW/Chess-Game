@@ -10,12 +10,12 @@ public class Board {
 	}
 	public void reset() {
 		for (int i=0; i<8; i++) {
-			this.board[1][i] = new Pawn(new Position((char)(i + 97), 1), "Black");
+			this.board[1][i] = new Pawn(new Position((char)(i + 97), 2), "Black");
 			this.board[2][i] = " ";
 			this.board[3][i] = " ";
 			this.board[4][i] = " ";
 			this.board[5][i] = " ";
-			this.board[6][i] = new Pawn(new Position((char)(i + 97), 1), "White");
+			this.board[6][i] = new Pawn(new Position((char)(i + 97), 7), "White");
 		}
 		String currentColour = "Black";;
 		for (int i=0; i<2; i++) {
@@ -31,10 +31,11 @@ public class Board {
 			this.board[7*i][6] = new Knight(new Position('g', 8 - (8*i)), currentColour);
 			this.board[7*i][7] = new Rook(new Position('h', 8 - (8*i)), currentColour);
 		}
+		this.board[3][4] = new Bishop(new Position((char)(4 + 97), 5), "Black");
 	}
 	public boolean spotAvailable(Position position) {
 		int[] points = position.getIndexes();
-		
+
 		if (position.isValid() &&
 				this.board[points[1]][points[0]].equals(" ")) {
 			return true;	
@@ -61,4 +62,18 @@ public class Board {
 		}
 		return boardString;
 	}
+	public Object getPieceAt(Position position) {
+		for (int i=0; i<board.length; i++) {
+			for (int j=0; j<board[0].length; j++) {
+				if (board[i][j] instanceof Piece) {
+					Piece current = (Piece)board[i][j];
+					if (current.getPosition().equals(position)) {
+						return board[i][j];
+					}
+				}
+			}
+		}
+		return "not found";
+	}
 }
+

@@ -18,45 +18,47 @@ public class Position {
 		switch (direction) {
 		// Move North
 		case 1:
-			this.row += Math.min(8-row, distance);
+			this.row += distance;
 			break;
 			// Move North-East
 		case 2:
-			this.column += (char)Math.min(8-((int)column - 96), distance);
-			this.row += Math.min(8-row, distance);
+			this.column += (char)distance;
+			this.row += distance;
 			break;
 			// Move East
 		case 3:
-			this.column += (char)Math.min(8-((int)column - 96), distance);
+			this.column += (char)distance;
 			break;
 			// Move South-East
 		case 4:
-			this.column += (char)Math.min(8-((int)column - 96), distance);
-			this.row -= Math.min(row-1, distance);
+			this.column += (char)distance;
+			this.row -= distance;
 			break;
 			// Move South
 		case 5:
-			this.row -= Math.min(row-1, distance);
+			this.row -= distance;
 			break;
 			// Move South-West
 		case 6:
-			this.column -= (char)Math.min((int)column-97, distance);
-			this.row -= Math.min(row-1, distance);
+			this.column -= (char)distance;
+			this.row -= distance;
 			break;
 			// Move West
 		case 7:
-			this.column -= (char)Math.min((int)column-97, distance);
+			this.column -= (char)distance;
 			break;
 			// Move North-West
 		case 8:
-			this.column -= (char)Math.min((int)column-97, distance);
-			this.row += Math.min(8-row, distance);
+			this.column -= (char)distance;
+			this.row += distance;
 			break;
 		}
 		return this;
 	}
 	public Position positionAt(int direction, int distance) {
-		return this.copy().moveDirection(direction, distance);
+		Position copy = this.copy();
+		copy.moveDirection(direction, distance);
+		return copy;
 	}
 	public int[] getIndexes() {
 		int[] coords = new int[2];
@@ -65,9 +67,8 @@ public class Position {
 		return coords;
 	}
 	public boolean isValid() {
-		int[] points = this.getIndexes();
-		if (points[0] < 0 || points[0] > 7 ||
-				points[1] < 0 || points[1] > 7) {
+		if ((int)this.column < 97 || this.row < 1 ||
+				(int)this.column > 104 || this.row > 8) {
 			return false;
 		} else {
 			return true;
@@ -78,5 +79,13 @@ public class Position {
 	}
 	public String toString() {
 		return "" + column + row;
+	}
+	public boolean equals(Position position) {
+		if (position.getRow() != this.row ||
+				position.getColumn() != this.column) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 }

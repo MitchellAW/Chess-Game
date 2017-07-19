@@ -1,13 +1,10 @@
 
 public class Pawn extends Piece {
-	// direction, distance
-	private int[][] moves = {{1, 1}};
+	private int[] directions = {1};
+	private int maxDistance = 1;
 
 	public Pawn(Position position, String colour) {
 		super(position, colour, 1);
-	}
-	public int[][] getMoves() {
-		return this.moves;
 	}
 	public String toString() {
 		if (this.getColour().equals("White")) {
@@ -15,5 +12,11 @@ public class Pawn extends Piece {
 		} else {
 			return "♟";
 		}
+	}
+	public int[] getDirections() {
+		return this.directions;
+	}
+	public int getMaxDistance() {
+		return this.maxDistance;
 	}
 }

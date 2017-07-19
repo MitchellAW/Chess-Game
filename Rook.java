@@ -6,17 +6,17 @@ public class Rook extends Piece {
 	public Rook(Position position, String colour) {
 		super(position, colour, 5);
 	}
+	public int[] getDirections() {
+		return this.directions;
+	}
+	public int getMaxDistance() {
+		return this.maxDistance;
+	}
 	public String toString() {
 		if (this.getColour().equals("White")) {
 			return "♖";
 		} else {
 			return "♜";
 		}
-	}
-	public int[] getDirections() {
-		return this.directions;
-	}
-	public int getMaxDistance() {
-		return this.maxDistance;
 	}
 }

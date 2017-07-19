@@ -12,17 +12,17 @@ public class Knight extends Piece {
 	public int countMoves() {
 		return 0;
 	}
+	public int[] getDirections() {
+		return this.directions;
+	}
+	public int getMaxDistance() {
+		return this.maxDistance;
+	}
 	public String toString() {
 		if (this.getColour().equals("White")) {
 			return "♘";
 		} else {
 			return "♞";
 		}
-	}
-	public int[] getDirections() {
-		return this.directions;
-	}
-	public int getMaxDistance() {
-		return this.maxDistance;
 	}
 }

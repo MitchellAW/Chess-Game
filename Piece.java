@@ -24,6 +24,14 @@ public abstract class Piece {
 		return this.colour;
 	}
 
+	public String getOppositeColour() {
+		if (this.colour.equals("White")) {
+			return "Black";
+		} else {
+			return "White";
+		}
+	}
+
 	public int getValue() {
 		return this.value;
 	}

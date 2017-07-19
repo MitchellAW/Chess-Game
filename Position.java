@@ -23,34 +23,34 @@ public class Position {
 		case 1:
 			this.row += distance;
 			break;
-		// Move North-East
+			// Move North-East
 		case 2:
 			this.column += (char) distance;
 			this.row += distance;
 			break;
-		// Move East
+			// Move East
 		case 3:
 			this.column += (char) distance;
 			break;
-		// Move South-East
+			// Move South-East
 		case 4:
 			this.column += (char) distance;
 			this.row -= distance;
 			break;
-		// Move South
+			// Move South
 		case 5:
 			this.row -= distance;
 			break;
-		// Move South-West
+			// Move South-West
 		case 6:
 			this.column -= (char) distance;
 			this.row -= distance;
 			break;
-		// Move West
+			// Move West
 		case 7:
 			this.column -= (char) distance;
 			break;
-		// Move North-West
+			// Move North-West
 		case 8:
 			this.column -= (char) distance;
 			this.row += distance;
@@ -67,8 +67,8 @@ public class Position {
 
 	public int[] getIndexes() {
 		int[] coords = new int[2];
-		coords[0] = (int) column - 96;
-		coords[1] = row - 1;
+		coords[0] = 8 - this.row;
+		coords[1] = (int)this.column - 97;
 		return coords;
 	}
 
@@ -85,10 +85,6 @@ public class Position {
 		return new Position(this.getColumn(), this.getRow());
 	}
 
-	public String toString() {
-		return "" + column + row;
-	}
-
 	public boolean equals(Position position) {
 		if (position.getRow() != this.row
 				|| position.getColumn() != this.column) {
@@ -96,5 +92,9 @@ public class Position {
 		} else {
 			return true;
 		}
+	}
+	
+	public String toString() {
+		return "" + column + row;
 	}
 }

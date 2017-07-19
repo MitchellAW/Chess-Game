@@ -1,12 +1,10 @@
 
 public class King extends Piece {
-	private int[][] moves;
+	private int[] directions = {1, 2, 3, 4, 5, 6, 7, 8};
+	private int maxDistance = 1;
 
 	public King(Position position, String colour) {
 		super(position, colour, 100);
-	}
-	public int[][] getMoves() {
-		return this.moves;
 	}
 	public String toString() {
 		if (this.getColour().equals("White")) {
@@ -14,5 +12,11 @@ public class King extends Piece {
 		} else {
 			return "♚";
 		}
+	}
+	public int[] getDirections() {
+		return this.directions;
+	}
+	public int getMaxDistance() {
+		return this.maxDistance;
 	}
 }

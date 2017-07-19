@@ -23,7 +23,34 @@ public abstract class Piece {
 	public int getValue() {
 		return this.value;
 	}
-	public abstract int[][] getMoves();
+	public Position[] getMoves() {
+		Position[] moves = new Position[countMoves()];
+		Position curr = this.getPosition();
+		int index = 0;
+		for (int i=0; i<this.getDirections().length; i++) {
+			for (int j=1; j<=this.getMaxDistance(); j++) {
+				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
+					moves[index] = curr.positionAt(this.getDirections()[i], j);
+					index++;
+				}
+			}
+		}
+		return moves;
+	}
+	public int countMoves() {
+		int moveCount = 0;
+		Position curr = this.getPosition();
+		for (int i=0; i<this.getDirections().length; i++) {
+			for (int j=1; j<=this.getMaxDistance(); j++) {
+				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
+					moveCount++;
+				}
+			}
+		}
+		return moveCount;
+	}
+	public abstract int getMaxDistance();
+	public abstract int[] getDirections();
 
 	public void move(Board board, int direction, int distance) {
 		if (this.position.positionAt(direction, distance).isValid()) {

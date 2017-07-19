@@ -78,6 +78,10 @@ public class Board {
 		}
 	}
 	
+	public Object getPieceAt(int row, int column) {
+		return this.board[row][column];
+	}
+	
 	public void showMoves(Position position) {
 		Board boardCopy = this.copy();
 		boardCopy.setBoard(this.board);

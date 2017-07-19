@@ -11,40 +11,41 @@ public class Playing {
 		Position[] moves1 = test1.getMoves();
 		System.out.println();
 		System.out.println("Pawn:");
-		for (int i=0; i<moves1.length; i++) {
+		for (int i = 0; i < moves1.length; i++) {
 			System.out.print(moves1[i] + ", ");
 		}
 		moves1 = test2.getMoves();
 		System.out.println();
 		System.out.println("Bishop");
-		for (int i=0; i<moves1.length; i++) {
+		for (int i = 0; i < moves1.length; i++) {
 			System.out.print(moves1[i] + ", ");
 		}
 		moves1 = test3.getMoves();
 		System.out.println();
 		System.out.println("King");
-		for (int i=0; i<moves1.length; i++) {
+		for (int i = 0; i < moves1.length; i++) {
 			System.out.print(moves1[i] + ", ");
 		}
 		moves1 = test4.getMoves();
 		System.out.println();
 		System.out.println("Queen");
-		for (int i=0; i<moves1.length; i++) {
+		for (int i = 0; i < moves1.length; i++) {
 			System.out.print(moves1[i] + ", ");
 		}
 		moves1 = test5.getMoves();
 		System.out.println();
 		System.out.println("Rook");
-		for (int i=0; i<moves1.length; i++) {
+		for (int i = 0; i < moves1.length; i++) {
 			System.out.print(moves1[i] + ", ");
 		}
 		moves1 = test6.getMoves();
 		System.out.println();
 		System.out.println("Knight");
-		for (int i=0; i<moves1.length; i++) {
+		for (int i = 0; i < moves1.length; i++) {
 			System.out.print(moves1[i] + ", ");
 		}
 	}
+
 	public static void main(String[] args) {
 		new Playing();
 	}

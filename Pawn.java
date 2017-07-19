@@ -11,9 +11,11 @@ public class Pawn extends Piece {
 			this.directions[0] = 5;
 		}
 	}
+
 	public int[] getDirections() {
 		return this.directions;
 	}
+
 	public int getMaxDistance() {
 		if (this.getColour().equals("White")) {
 			if (this.getPosition().getRow() == 2) {
@@ -29,6 +31,7 @@ public class Pawn extends Piece {
 			}
 		}
 	}
+
 	public String toString() {
 		if (this.getColour().equals("White")) {
 			return "♙";

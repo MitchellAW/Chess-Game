@@ -1,7 +1,7 @@
 
 public class Knight extends Piece {
 	private int[] directions = { 8, 1, 2, 3, 4, 5, 6, 7, 8 };
-	private int maxDistance = 1;
+	private int maxDistance = 5;
 
 	public Knight(Position position, String colour) {
 		super(position, colour, 3);

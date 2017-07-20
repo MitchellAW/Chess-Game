@@ -44,8 +44,6 @@ public class ChessGUI extends JFrame {
 	}
 
 	public JPanel createBoard() {
-		JPanel newJPanel = new JPanel();
-
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		JPanel gameBoard = new JPanel(new GridLayout(8, 8));
 
@@ -144,10 +142,14 @@ public class ChessGUI extends JFrame {
 	}
 
 	public void showMoves(Position position) {
-		Position[] moves = ((Piece)board.getPieceAt(position)).getMoves();
-		for (int i = 0; i < moves.length; i++) {
-			int[] points = moves[i].getIndexes();
-			boardButtons[points[0]][points[1]].setBackground(highlight);
+		if (board.getPieceAt(position) instanceof Piece) {
+			Piece piece = ((Piece)board.getPieceAt(position));
+			Position[] moves = piece.getMoves(board);
+			for (int i = 0; i < moves.length; i++) {
+				int[] points = moves[i].getIndexes();
+
+				boardButtons[points[0]][points[1]].setBackground(highlight);
+			}
 		}
 	}
 

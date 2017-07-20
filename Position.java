@@ -15,6 +15,11 @@ public class Position {
 		this.column = column;
 		this.row = row;
 	}
+	
+	Position(int row, int column) {
+		this.column = (char)(column + 97);
+		this.row = 8 - row;
+	}
 
 	// Takes integer from 1-8 to choose direction (1=North, 5=South)
 	public Position moveDirection(int direction, int distance) {

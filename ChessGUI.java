@@ -164,9 +164,12 @@ public class ChessGUI extends JFrame {
 
 				if (boardButtons[points[0]][points[1]].getBackground() == lightBg) {
 					boardButtons[points[0]][points[1]].setBackground(highlightLight);
+
 				} else {
 					boardButtons[points[0]][points[1]].setBackground(highlightDark);
 				}
+				// TODO remove this again eventually after chosen better colours
+				boardButtons[points[0]][points[1]].setBackground(highlightLight);
 				boardButtons[points[0]][points[1]].setForeground(Color.RED.darker());
 			}
 		}
@@ -214,12 +217,14 @@ public class ChessGUI extends JFrame {
 						} else if (e.getSource() == boardButtons[i][j] 
 								&& moves % 2 == 0) {
 							move(pos, new Position(i, j));
+							resetColours();
 							moves++;
 							resetColours();
 							Position[] computerMove = computer.getRandomMove(board);
 							move(computerMove[0], computerMove[1]);
+							int[] computerPoints = computerMove[1].getIndexes();
+							boardButtons[computerPoints[0]][computerPoints[1]].setBackground(highlightLight);
 							moves++;
-							resetColours();
 						}
 					}
 				}

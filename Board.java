@@ -105,7 +105,7 @@ public class Board {
 		}
 		System.out.println(boardCopy);
 	}
-
+	
 	public void newPiece(Position position, Object piece) {
 		int[] points = position.getIndexes();
 		this.board[points[0]][points[1]] = piece;

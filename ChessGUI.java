@@ -22,6 +22,8 @@ public class ChessGUI extends JFrame {
 	Color darkBg = new Color(209, 139, 71);
 	Color lightBg = new Color(255, 206, 158);
 	Color highlight = new Color(255, 128, 97);
+	
+	Position pos = new Position('a', 1);
 
 	JButton[][] boardButtons;
 	// JButton resetButton = new JButton("Reset");
@@ -40,7 +42,6 @@ public class ChessGUI extends JFrame {
 		frame.setVisible(true);
 		frame.setResizable(false);
 		frame.setContentPane(createBoard());
-
 	}
 
 	public JPanel createBoard() {
@@ -83,7 +84,6 @@ public class ChessGUI extends JFrame {
 						.setFont(new Font("Arial Unicode MS", Font.BOLD, 64));
 			}
 		}
-
 		return mainPanel;
 	}
 
@@ -100,6 +100,8 @@ public class ChessGUI extends JFrame {
 
 		menuBar.add(menu);
 		menuBar.add(reset);
+		
+		reset.addActionListener(new MyActionListener());
 
 		// Submenu of difficulties
 		submenu = new JMenu("Change Difficulty");
@@ -112,8 +114,6 @@ public class ChessGUI extends JFrame {
 
 		submenu.add(hardOption);
 		hardOption.addActionListener(new MyActionListener());
-
-		reset.addActionListener(new MyActionListener());
 
 		menu.add(submenu);
 
@@ -140,6 +140,14 @@ public class ChessGUI extends JFrame {
 			}
 		}
 	}
+	
+	public void updatePieces() {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				boardButtons[i][j].setText(board.getPieceAt(i, j).toString());
+			}
+		}
+	}
 
 	public void showMoves(Position position) {
 		if (board.getPieceAt(position) instanceof Piece) {
@@ -152,29 +160,48 @@ public class ChessGUI extends JFrame {
 			}
 		}
 	}
+	
+	public void move (Position from, Position to) {
+		Object piece = board.getPieceAt(from);
+		if (piece instanceof Piece) {
+			board.newPiece(from, " ");
+			board.newPiece(to, piece);
+		}
+	}
 
 	public class MyActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			resetColours();
+//			Position pos = new Position('a', 1);
+			updatePieces();
+			
 			if (e.getSource() == reset) {
 				board.reset();
+				System.out.println("Reset");
 				for (int i = 0; i < 8; i++) {
 					for (int j = 0; j < 8; j++) {
 						boardButtons[i][j].setText((board.getBoard()[i][j].toString()));
 					}
+					resetColours();
+					updatePieces();
 				}
 			} else {
 				for (int i = 0; i < 8; i++) {
 					for (int j = 0; j < 8; j++) {
-						if (e.getSource() == boardButtons[i][j]) {
+						if (e.getSource() == boardButtons[i][j] && 
+								boardButtons[i][j].getBackground() != highlight) {
 							if (board.getPieceAt(i, j) instanceof Piece) {
-								Position pos = ((Piece)board.getPieceAt(i, j)).getPosition();
+								resetColours();
+								pos = ((Piece)board.getPieceAt(i, j)).getPosition();
 								showMoves(pos);
 							}
+						} else if (e.getSource() == boardButtons[i][j]) {
+							move(pos, new Position(i, j));
+							resetColours();
 						}
 					}
 				}
 			}
+			updatePieces();
 		}
 	}
 

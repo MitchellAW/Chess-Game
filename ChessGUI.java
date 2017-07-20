@@ -17,19 +17,24 @@ public class ChessGUI extends JFrame {
 
 	private static final long serialVersionUID = 7731593523032576580L;
 
+	int moves = 0;
+
 	Board board = new Board();
 
 	Color darkBg = new Color(209, 139, 71);
 	Color lightBg = new Color(255, 206, 158);
-	Color highlight = new Color(255, 128, 97);
-	
+	Color highlightLight = new Color(255, 128, 97);
+	Color highlightDark = new Color(255, 102, 71);
+
+	Opponent computer = new Opponent("Black");
+
 	Position pos = new Position('a', 1);
 
 	JButton[][] boardButtons;
 	// JButton resetButton = new JButton("Reset");
 	JFrame frame = new JFrame("Mitch's Chess");
 
-	JMenu reset = new JMenu("Reset");
+	JMenuItem reset = new JMenuItem("Reset");
 	JMenuItem easyOption = new JMenuItem("Easy");
 	JMenuItem mediumOption = new JMenuItem("Medium");
 	JMenuItem hardOption = new JMenuItem("Hard");
@@ -100,8 +105,6 @@ public class ChessGUI extends JFrame {
 
 		menuBar.add(menu);
 		menuBar.add(reset);
-		
-		reset.addActionListener(new MyActionListener());
 
 		// Submenu of difficulties
 		submenu = new JMenu("Change Difficulty");
@@ -116,6 +119,8 @@ public class ChessGUI extends JFrame {
 		hardOption.addActionListener(new MyActionListener());
 
 		menu.add(submenu);
+
+		reset.addActionListener(new MyActionListener());
 
 		return menuBar;
 	}
@@ -137,10 +142,11 @@ public class ChessGUI extends JFrame {
 						boardButtons[i][j].setBackground(darkBg);
 					}
 				}
+				boardButtons[i][j].setForeground(Color.BLACK);
 			}
 		}
 	}
-	
+
 	public void updatePieces() {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -156,15 +162,20 @@ public class ChessGUI extends JFrame {
 			for (int i = 0; i < moves.length; i++) {
 				int[] points = moves[i].getIndexes();
 
-				boardButtons[points[0]][points[1]].setBackground(highlight);
+				if (boardButtons[points[0]][points[1]].getBackground() == lightBg) {
+					boardButtons[points[0]][points[1]].setBackground(highlightLight);
+				} else {
+					boardButtons[points[0]][points[1]].setBackground(highlightDark);
+				}
+				boardButtons[points[0]][points[1]].setForeground(Color.RED.darker());
 			}
 		}
 	}
-	
+
 	public void move (Position from, Position to) {
 		Object piece = board.getPieceAt(from);
 		if (piece instanceof Piece) {
-			board.newPiece(from, " ");
+			board.newPiece(from, "");
 			board.newPiece(to, piece);
 			((Piece)piece).setPosition(to);
 		}
@@ -172,16 +183,16 @@ public class ChessGUI extends JFrame {
 
 	public class MyActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-//			Position pos = new Position('a', 1);
+			//			Position pos = new Position('a', 1);
 			updatePieces();
-			
+
 			if (e.getSource() == reset) {
 				board.reset();
-				System.out.println("Reset");
 				for (int i = 0; i < 8; i++) {
 					for (int j = 0; j < 8; j++) {
 						boardButtons[i][j].setText((board.getBoard()[i][j].toString()));
 					}
+					moves = 0;
 					resetColours();
 					updatePieces();
 				}
@@ -189,16 +200,25 @@ public class ChessGUI extends JFrame {
 				for (int i = 0; i < 8; i++) {
 					for (int j = 0; j < 8; j++) {
 						if (e.getSource() == boardButtons[i][j] && 
-								boardButtons[i][j].getBackground() != highlight) {
+								boardButtons[i][j].getBackground() != highlightDark &&
+								boardButtons[i][j].getBackground() != highlightLight) {
 							if (board.getPieceAt(i, j) instanceof Piece) {
-								resetColours();
-								pos = ((Piece)board.getPieceAt(i, j)).getPosition();
-								showMoves(pos);
+								if (((Piece)board.getPieceAt(i, j)).getColour() == "White") {
+									resetColours();
+									pos = ((Piece)board.getPieceAt(i, j)).getPosition();
+									showMoves(pos);
+								}
 							} else {
 								resetColours();
 							}
-						} else if (e.getSource() == boardButtons[i][j]) {
+						} else if (e.getSource() == boardButtons[i][j] 
+								&& moves % 2 == 0) {
 							move(pos, new Position(i, j));
+							moves++;
+							resetColours();
+							Position[] computerMove = computer.getRandomMove(board);
+							move(computerMove[0], computerMove[1]);
+							moves++;
 							resetColours();
 						}
 					}

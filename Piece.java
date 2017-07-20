@@ -35,6 +35,10 @@ public abstract class Piece {
 	public int getValue() {
 		return this.value;
 	}
+	
+	public boolean canMove(Board board) {
+		return (countMoves(board) > 0);
+	}
 
 	public Position[] getMoves(Board board) {
 		Position[] moves = new Position[countMoves(board)];

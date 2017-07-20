@@ -223,6 +223,8 @@ public class ChessGUI extends JFrame {
 							Position[] computerMove = computer.getRandomMove(board);
 							move(computerMove[0], computerMove[1]);
 							int[] computerPoints = computerMove[1].getIndexes();
+							boardButtons[computerPoints[0]][computerPoints[1]].setForeground(Color.RED.darker());
+							computerPoints = computerMove[0].getIndexes();
 							boardButtons[computerPoints[0]][computerPoints[1]].setBackground(highlightLight);
 							moves++;
 						}

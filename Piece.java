@@ -36,28 +36,47 @@ public abstract class Piece {
 		return this.value;
 	}
 
-	public Position[] getMoves() {
-		Position[] moves = new Position[countMoves()];
+	public Position[] getMoves(Board board) {
+		Position[] moves = new Position[countMoves(board)];
 		Position curr = this.getPosition();
 		int index = 0;
 		for (int i = 0; i < this.getDirections().length; i++) {
 			for (int j = 1; j <= this.getMaxDistance(); j++) {
 				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
-					moves[index] = curr.positionAt(this.getDirections()[i], j);
-					index++;
+					Object pieceAt = board.getPieceAt(curr.positionAt(this.getDirections()[i], j));
+					if (pieceAt instanceof Piece) {
+						if (((Piece)pieceAt).getColour() != this.getColour()) {
+							moves[index] = curr.positionAt(this.getDirections()[i], j);
+							index++;
+						} else {
+							break;
+						}
+					} else {
+						moves[index] = curr.positionAt(this.getDirections()[i], j);
+						index++;
+					}
 				}
 			}
 		}
 		return moves;
 	}
 
-	public int countMoves() {
+	public int countMoves(Board board) {
 		int moveCount = 0;
 		Position curr = this.getPosition();
 		for (int i = 0; i < this.getDirections().length; i++) {
 			for (int j = 1; j <= this.getMaxDistance(); j++) {
 				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
-					moveCount++;
+					Object pieceAt = board.getPieceAt(curr.positionAt(this.getDirections()[i], j));
+					if (pieceAt instanceof Piece) {
+						if (((Piece)pieceAt).getColour() != this.getColour()) {
+							moveCount++;
+						} else {
+							break;
+						}
+					} else {
+						moveCount++;
+					}
 				}
 			}
 		}

@@ -10,7 +10,7 @@ public class Board {
 	public Object[][] getBoard() {
 		return this.board;
 	}
-	
+
 	public void setBoard(Object[][] board) {
 		this.board = board;
 	}
@@ -65,6 +65,19 @@ public class Board {
 		return false;
 	}
 
+	public boolean isValid(Piece piece, Position position) {
+		if (position.isValid() == false) {
+			return false;
+		} else {
+			if (!getPieceAt(position).equals(" ")) {
+				if (((Piece)getPieceAt(position)).getColour() == piece.getColour()) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	public int currentScore(String colour) {
 		return 0;
 	}
@@ -77,27 +90,27 @@ public class Board {
 			return this.board[points[0]][points[1]];
 		}
 	}
-	
+
 	public Object getPieceAt(int row, int column) {
 		return this.board[row][column];
 	}
-	
+
 	public void showMoves(Position position) {
 		Board boardCopy = this.copy();
 		boardCopy.setBoard(this.board);
-		
-		Position[] moves = ((Piece)getPieceAt(position)).getMoves();
+
+		Position[] moves = ((Piece)getPieceAt(position)).getMoves(this);
 		for (int i = 0; i < moves.length; i++) {
 			boardCopy.newPiece(moves[i], "X");
 		}
 		System.out.println(boardCopy);
 	}
-	
+
 	public void newPiece(Position position, Object piece) {
 		int[] points = position.getIndexes();
 		this.board[points[0]][points[1]] = piece;
 	}
-	
+
 	public Board copy() {
 		Board boardCopy = new Board();
 		boardCopy.setBoard(this.board);

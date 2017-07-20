@@ -48,6 +48,7 @@ public abstract class Piece {
 						if (((Piece)pieceAt).getColour() != this.getColour()) {
 							moves[index] = curr.positionAt(this.getDirections()[i], j);
 							index++;
+							break;
 						} else {
 							break;
 						}
@@ -71,6 +72,7 @@ public abstract class Piece {
 					if (pieceAt instanceof Piece) {
 						if (((Piece)pieceAt).getColour() != this.getColour()) {
 							moveCount++;
+							break;
 						} else {
 							break;
 						}

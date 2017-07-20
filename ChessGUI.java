@@ -166,6 +166,7 @@ public class ChessGUI extends JFrame {
 		if (piece instanceof Piece) {
 			board.newPiece(from, " ");
 			board.newPiece(to, piece);
+			((Piece)piece).setPosition(to);
 		}
 	}
 
@@ -193,6 +194,8 @@ public class ChessGUI extends JFrame {
 								resetColours();
 								pos = ((Piece)board.getPieceAt(i, j)).getPosition();
 								showMoves(pos);
+							} else {
+								resetColours();
 							}
 						} else if (e.getSource() == boardButtons[i][j]) {
 							move(pos, new Position(i, j));

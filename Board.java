@@ -19,10 +19,10 @@ public class Board {
 		for (int i = 0; i < 8; i++) {
 			this.board[1][i] = new Pawn(new Position((char) (i + 97), 7),
 					"Black");
-			this.board[2][i] = " ";
-			this.board[3][i] = " ";
-			this.board[4][i] = " ";
-			this.board[5][i] = " ";
+			this.board[2][i] = "";
+			this.board[3][i] = "";
+			this.board[4][i] = "";
+			this.board[5][i] = "";
 			this.board[6][i] = new Pawn(new Position((char) (i + 97), 2),
 					"White");
 		}
@@ -55,7 +55,7 @@ public class Board {
 		int[] points = position.getIndexes();
 
 		if (position.isValid()
-				&& this.board[points[1]][points[0]].equals(" ")) {
+				&& this.board[points[1]][points[0]].equals("")) {
 			return true;
 		}
 		return false;
@@ -69,7 +69,7 @@ public class Board {
 		if (position.isValid() == false) {
 			return false;
 		} else {
-			if (!getPieceAt(position).equals(" ")) {
+			if (!getPieceAt(position).equals("")) {
 				if (((Piece)getPieceAt(position)).getColour() == piece.getColour()) {
 					return false;
 				}

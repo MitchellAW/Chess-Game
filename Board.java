@@ -1,8 +1,11 @@
+import java.util.ArrayList;
+import java.util.List;
 
 public class Board {
 
 	private Object[][] board = new Object[8][8];
-	Object[][] moves = new Object[1][4];
+	//	Object[][] moves = new Object[1][4];
+	List<Object[]> moves = new ArrayList<Object[]>();
 
 	public Board() {
 		reset();
@@ -184,59 +187,30 @@ public class Board {
 
 	// Undoes the changes made by the last move, using the moves array
 	public void undo() {
-		if (this.moves.length > 0) {
+		if (this.moves.size() > 0) {
 			// Undo the last move
-			Object piecePreMove = this.moves[moves.length - 1][0];
-			Object pieceAtMove = this.moves[moves.length - 1][1];
+			Object piecePreMove = this.moves.get(moves.size() - 1)[0];
+			Object pieceAtMove = this.moves.get(moves.size() - 1)[1];
 
-			Position from = (Position) this.moves[moves.length - 1][2];
-			Position to = (Position) this.moves[moves.length - 1][3];
+			Position from = (Position) this.moves.get(moves.size() - 1)[2];
+			Position to = (Position) this.moves.get(moves.size() - 1)[3];
 
 			newPiece(from, piecePreMove);
 			newPiece(to, pieceAtMove);
 			
-			// Remove the last move from moves array
-			Object[][] newMoves = new Object[moves.length - 1][4];
-			
-			for (int i = 0; i < this.moves[0].length; i++) {
-				newMoves[0][i] = moves[0][i];
-				newMoves[1][i] = moves[1][i];
-			}
-			
-			this.moves = newMoves;
+			this.moves.remove(moves.size() - 1);
 		}
-	}
-
-	// Adds a move to the moves array
-	public void addMove(Object[] piecesMoved, Object[] positions) {
-		Object[][] newMoves = new Object[moves.length + 1][4];
-		if (this.moves.length > 1) {
-			for (int i = 0; i < this.moves[0].length; i++) {
-				newMoves[0][i] = moves[0][i];
-				newMoves[1][i] = moves[1][i];
-			}
-		}
-		newMoves[moves.length][0] = piecesMoved[0];
-		newMoves[moves.length][1] = piecesMoved[1];
-		newMoves[moves.length][2] = positions[0];
-		newMoves[moves.length][3] = positions[1];
-
-		this.moves = newMoves;
 	}
 
 	// Makes the move and stores its history in moves
 	public void move(Position from, Position to) {
 		Object piecePreMove = getPieceAt(from);
 		Object pieceAtMove = getPieceAt(to);
-		if (piecePreMove instanceof Piece) {
-			newPiece(from, "");
-			newPiece(to, piecePreMove);
+		newPiece(from, "");
+		newPiece(to, piecePreMove);
 
-			Object[] piecesMoved = { piecePreMove, pieceAtMove };
-			Position[] positions = { from, to };
-			addMove(piecesMoved, positions);
-
-		}
+		Object[] piecesMoved = {piecePreMove, pieceAtMove, from, to};
+		this.moves.add(piecesMoved);
 	}
 
 	// Board as a string

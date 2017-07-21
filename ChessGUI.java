@@ -13,6 +13,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 
 public class ChessGUI extends JFrame {
 
@@ -22,7 +24,7 @@ public class ChessGUI extends JFrame {
 
 	Board board = new Board();
 
-	// Various font and colours used 
+	// Various font and colours used
 	Color darkBg = new Color(209, 139, 71);
 	Color lightBg = new Color(255, 206, 158);
 	Color highlight = new Color(255, 128, 97);
@@ -30,7 +32,6 @@ public class ChessGUI extends JFrame {
 	Font arialMS = new Font("Arial Unicode MS", Font.BOLD, 64);
 
 	Opponent computer = new Opponent("Black");
-
 	Position pos = new Position('a', 1);
 
 	// Chess Board
@@ -38,6 +39,7 @@ public class ChessGUI extends JFrame {
 	JFrame frame = new JFrame("Mitch's Chess");
 
 	// Menu options
+	JButton undo = new JButton("Undo");
 	JMenuItem reset = new JMenuItem("Reset");
 	JMenuItem easyOption = new JMenuItem("Easy");
 	JMenuItem mediumOption = new JMenuItem("Medium");
@@ -45,11 +47,12 @@ public class ChessGUI extends JFrame {
 
 	public ChessGUI() {
 		frame.setJMenuBar(createMenuBar());
-		frame.setSize(900, 900);
+		frame.setSize(1000, 1000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(createBoard());
 		frame.setVisible(true);
 		frame.setResizable(false);
+		
 	}
 
 	public JPanel createBoard() {
@@ -59,7 +62,10 @@ public class ChessGUI extends JFrame {
 		boardButtons = new JButton[8][8];
 
 		gameBoard.setPreferredSize(new Dimension(850, 850));
-		mainPanel.add(gameBoard);
+		mainPanel.add(gameBoard, BorderLayout.CENTER);
+		mainPanel.add(undo, BorderLayout.PAGE_END);
+		
+		undo.addActionListener(new MyActionListener());
 
 		// Initialise all the buttons
 		for (int i = 0; i < 8; i++) {
@@ -85,7 +91,7 @@ public class ChessGUI extends JFrame {
 				boardButtons[i][j].setText((board.getPieceAt(i, j).toString()));
 				boardButtons[i][j].setFont(arialMS);
 
-				gameBoard.add(boardButtons[i][j]);	
+				gameBoard.add(boardButtons[i][j]);
 				boardButtons[i][j].addActionListener(new MyActionListener());
 			}
 		}
@@ -93,33 +99,36 @@ public class ChessGUI extends JFrame {
 	}
 
 	public JMenuBar createMenuBar() {
-		JMenuBar menuBar;
-		JMenu menu, submenu;
-
-		// Initalise the menu bar
-		menuBar = new JMenuBar();
-		menu = new JMenu("File");
-
-		// Add reset button
-		frame.add(menu);
-		frame.add(reset);
-
-		menuBar.add(menu);
-		menuBar.add(reset);
-
-		// Add difficulty options to sub-menu
-		submenu = new JMenu("Change Difficulty");
-		submenu.add(easyOption);
+		// Create difficulties and listen for clicks
+		JMenu difficulty = new JMenu("Change Difficulty");
+		difficulty.add(easyOption);
 		easyOption.addActionListener(new MyActionListener());
-		submenu.add(mediumOption);
+		difficulty.add(mediumOption);
 		mediumOption.addActionListener(new MyActionListener());
-		submenu.add(hardOption);
+		difficulty.add(hardOption);
 		hardOption.addActionListener(new MyActionListener());
-
-		menu.add(submenu);
 
 		// Listen for clicks on reset button
 		reset.addActionListener(new MyActionListener());
+
+		// Creating menu
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menu = new JMenu("File");
+
+		// Creating menu items
+		JMenuItem credits = new JMenuItem("Credits");
+		JMenuItem exit = new JMenuItem("Exit");
+
+		// Adding Menu Items
+		menu.add(difficulty);
+//		menu.add(undo);
+		menu.add(reset);
+		menu.add(credits);
+		menu.add(exit);
+
+		// Adding menu to menu bar
+		menuBar.add(menu);
+//		menuBar.add(undo);
 
 		return menuBar;
 	}
@@ -164,7 +173,8 @@ public class ChessGUI extends JFrame {
 				int[] points = moves[i].getIndexes();
 
 				boardButtons[points[0]][points[1]].setBackground(highlight);
-				boardButtons[points[0]][points[1]].setForeground(Color.RED.darker());
+				boardButtons[points[0]][points[1]]
+						.setForeground(Color.RED.darker());
 			}
 		}
 	}
@@ -175,7 +185,6 @@ public class ChessGUI extends JFrame {
 		int[] move;
 
 		board.move(computerMove[0], computerMove[1]);
-
 		updatePieces();
 
 		// Highlight opponent's move for clarity
@@ -194,27 +203,36 @@ public class ChessGUI extends JFrame {
 				updatePieces();
 				resetColours();
 			}
+			if (e.getSource() == undo) {
+				board.undo();
+				board.undo();
+				moves -= 2;
+				updatePieces();
+				resetColours();
+			}
 			for (int i = 0; i < 8; i++) {
 				for (int j = 0; j < 8; j++) {
 					// Show the available moves if white piece is clicked
-					if (e.getSource() == boardButtons[i][j] && 
-							boardButtons[i][j].getBackground() != highlight) {
+					if (e.getSource() == boardButtons[i][j]
+							&& boardButtons[i][j]
+									.getBackground() != highlight) {
 
 						// Highlight available moves and set the piece position
 						if (board.getColourAt(new Position(i, j)) == "White") {
 							resetColours();
-							pos = ((Piece) board.getPieceAt(i, j)).getPosition();
+							pos = ((Piece) board.getPieceAt(i, j))
+									.getPosition();
 							showMoves(pos);
 
-							// If a white piece isn't clicked, clear the 
+							// If a white piece isn't clicked, clear the
 							// highlighted moves
 						} else {
 							resetColours();
 						}
 						// Player's move
-					} else if (e.getSource() == boardButtons[i][j] && 
-							moves % 2 == 0 && 
-							board.getColourAt(pos) == "White") {
+					} else if (e.getSource() == boardButtons[i][j]
+							&& moves % 2 == 0
+							&& board.getColourAt(pos) == "White") {
 
 						if (board.isCheckmate("White") == false) {
 							// Move to the selected position
@@ -223,13 +241,15 @@ public class ChessGUI extends JFrame {
 							updatePieces();
 							moves++;
 						} else {
-							JOptionPane.showMessageDialog(frame, "Checkmate. You Lose.");						
+							JOptionPane.showMessageDialog(frame,
+									"Checkmate. You Lose.");
 						}
 						// Make computer's move
 						if (board.isCheckmate("Black") == false) {
 							computerMove();
 						} else {
-							JOptionPane.showMessageDialog(frame, "Checkmate. You Win.");						
+							JOptionPane.showMessageDialog(frame,
+									"Checkmate. You Win.");
 						}
 					}
 
@@ -238,7 +258,6 @@ public class ChessGUI extends JFrame {
 			updatePieces();
 		}
 	}
-
 
 	public static void main(String[] args) {
 		new ChessGUI();

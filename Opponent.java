@@ -13,7 +13,7 @@ public class Opponent {
 
 		Position[] fromTo = new Position[2];
 
-		Position[][] allMoves = board.getAllMoves(this.colour);
+		Position[][] allMoves = board.getAllLegalMoves(this.colour);
 
 		int choice = rand.nextInt(allMoves[0].length);
 

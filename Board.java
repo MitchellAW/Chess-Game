@@ -184,6 +184,45 @@ public class Board {
 		movements[1] = allMoves;
 		return movements;
 	}
+	
+	// Counts all of the possible moves that can be made by colour
+		public int countAllLegalMoves(String colour) {
+			int moveCount = 0;
+			Position[][] allMoves = getAllMoves(colour);
+
+			for (int i = 0; i < allMoves[0].length; i++) {
+				move(allMoves[0][i], allMoves[1][i]);
+				if (isCheck(colour) == false) {
+					moveCount++;
+				}
+				undo();
+			}
+			return moveCount;
+		}
+
+		// Counts all of the possible moves that can be made by colour
+		public Position[][] getAllLegalMoves(String colour) {
+			int index = 0;
+			Position[][] allMoves = getAllMoves(colour);
+			Position[] preLegalMoves = new Position[countAllLegalMoves(colour)]; 
+			Position[] allLegalMoves = new Position[countAllLegalMoves(colour)]; 
+
+
+			for (int i = 0; i < allMoves[0].length; i++) {
+				move(allMoves[0][i], allMoves[1][i]);
+				if (isCheck(colour) == false) {
+					allLegalMoves[index] = allMoves[1][i];
+					preLegalMoves[index] = allMoves[0][i];
+					index++;
+				}
+				undo();
+			}
+			
+			Position[][] movements = new Position[2][countAllLegalMoves(colour)];
+			movements[0] = preLegalMoves;
+			movements[1] = allLegalMoves;
+			return movements;
+		}
 
 	// Undoes the changes made by the last move, using the moves array
 	public void undo() {
@@ -197,7 +236,7 @@ public class Board {
 
 			newPiece(from, piecePreMove);
 			newPiece(to, pieceAtMove);
-			
+
 			this.moves.remove(moves.size() - 1);
 		}
 	}

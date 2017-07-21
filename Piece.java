@@ -35,11 +35,12 @@ public abstract class Piece {
 	public int getValue() {
 		return this.value;
 	}
-	
+
 	public boolean canMove(Board board) {
 		return (countMoves(board) > 0);
 	}
 
+	// Gets all the moves that piece can make given the current board
 	public Position[] getMoves(Board board) {
 		Position[] moves = new Position[countMoves(board)];
 		Position curr = this.getPosition();
@@ -47,17 +48,20 @@ public abstract class Piece {
 		for (int i = 0; i < this.getDirections().length; i++) {
 			for (int j = 1; j <= this.getMaxDistance(); j++) {
 				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
-					Object pieceAt = board.getPieceAt(curr.positionAt(this.getDirections()[i], j));
+					Object pieceAt = board.getPieceAt(
+							curr.positionAt(this.getDirections()[i], j));
 					if (pieceAt instanceof Piece) {
-						if (((Piece)pieceAt).getColour() != this.getColour()) {
-							moves[index] = curr.positionAt(this.getDirections()[i], j);
+						if (((Piece) pieceAt).getColour() != this.getColour()) {
+							moves[index] = curr
+									.positionAt(this.getDirections()[i], j);
 							index++;
 							break;
 						} else {
 							break;
 						}
 					} else {
-						moves[index] = curr.positionAt(this.getDirections()[i], j);
+						moves[index] = curr.positionAt(this.getDirections()[i],
+								j);
 						index++;
 					}
 				}
@@ -66,15 +70,17 @@ public abstract class Piece {
 		return moves;
 	}
 
+	// Counts all the moves that piece can make given the current board
 	public int countMoves(Board board) {
 		int moveCount = 0;
 		Position curr = this.getPosition();
 		for (int i = 0; i < this.getDirections().length; i++) {
 			for (int j = 1; j <= this.getMaxDistance(); j++) {
 				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
-					Object pieceAt = board.getPieceAt(curr.positionAt(this.getDirections()[i], j));
+					Object pieceAt = board.getPieceAt(
+							curr.positionAt(this.getDirections()[i], j));
 					if (pieceAt instanceof Piece) {
-						if (((Piece)pieceAt).getColour() != this.getColour()) {
+						if (((Piece) pieceAt).getColour() != this.getColour()) {
 							moveCount++;
 							break;
 						} else {
@@ -92,10 +98,4 @@ public abstract class Piece {
 	public abstract int getMaxDistance();
 
 	public abstract int[] getDirections();
-
-	public void move(Board board, int direction, int distance) {
-		if (this.position.positionAt(direction, distance).isValid()) {
-			this.position = this.position.moveDirection(direction, distance);
-		}
-	}
 }

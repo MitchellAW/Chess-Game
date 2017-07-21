@@ -10,22 +10,20 @@ public class Opponent {
 	}
 
 	public Position[] getRandomMove(Board board) {
-		
+
 		Position[] fromTo = new Position[2];
-		
-		Piece[] pieces = getPieces(board);
-		Piece randomPiece = pieces[rand.nextInt(pieces.length)];
-		Position curr = randomPiece.getPosition();
-		Position[] moves = randomPiece.getMoves(board);
-		
-		Position randomMove = moves[rand.nextInt(moves.length)];
-		
-		fromTo[0] = curr;
-		fromTo[1] = randomMove;
-		
+
+		Position[][] allMoves = board.getAllMoves(this.colour);
+
+		int choice = rand.nextInt(allMoves[0].length);
+
+		fromTo[0] = allMoves[0][choice];
+		fromTo[1] = allMoves[1][choice];
+
 		return fromTo;
-		
+
 	}
+
 	public int countPieces(Board board) {
 		int pieceCount = 0;
 
@@ -33,8 +31,8 @@ public class Opponent {
 			for (int j = 0; j < 8; j++) {
 				Object pieceAt = board.getPieceAt(i, j);
 				if (pieceAt instanceof Piece) {
-					if (((Piece)pieceAt).getColour() == this.colour && 
-							((Piece)pieceAt).canMove(board)) {
+					if (((Piece) pieceAt).getColour() == this.colour
+							&& ((Piece) pieceAt).canMove(board)) {
 						pieceCount++;
 					}
 				}
@@ -42,6 +40,7 @@ public class Opponent {
 		}
 		return pieceCount;
 	}
+
 	public Piece[] getPieces(Board board) {
 		Piece[] pieces = new Piece[countPieces(board)];
 		int index = 0;
@@ -50,9 +49,9 @@ public class Opponent {
 			for (int j = 0; j < 8; j++) {
 				Object pieceAt = board.getPieceAt(i, j);
 				if (pieceAt instanceof Piece) {
-					if (((Piece)pieceAt).getColour() == this.colour && 
-							((Piece)pieceAt).canMove(board)) {
-						pieces[index] = (Piece)pieceAt;
+					if (((Piece) pieceAt).getColour() == this.colour
+							&& ((Piece) pieceAt).canMove(board)) {
+						pieces[index] = (Piece) pieceAt;
 						index++;
 					}
 				}

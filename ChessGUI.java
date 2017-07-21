@@ -52,7 +52,7 @@ public class ChessGUI extends JFrame {
 		frame.setContentPane(createBoard());
 		frame.setVisible(true);
 		frame.setResizable(false);
-		
+
 	}
 
 	public JPanel createBoard() {
@@ -64,7 +64,7 @@ public class ChessGUI extends JFrame {
 		gameBoard.setPreferredSize(new Dimension(850, 850));
 		mainPanel.add(gameBoard, BorderLayout.CENTER);
 		mainPanel.add(undo, BorderLayout.PAGE_END);
-		
+
 		undo.addActionListener(new MyActionListener());
 
 		// Initialise all the buttons
@@ -121,14 +121,14 @@ public class ChessGUI extends JFrame {
 
 		// Adding Menu Items
 		menu.add(difficulty);
-//		menu.add(undo);
+		// menu.add(undo);
 		menu.add(reset);
 		menu.add(credits);
 		menu.add(exit);
 
 		// Adding menu to menu bar
 		menuBar.add(menu);
-//		menuBar.add(undo);
+		// menuBar.add(undo);
 
 		return menuBar;
 	}
@@ -181,19 +181,24 @@ public class ChessGUI extends JFrame {
 
 	// Computer will make it's move
 	public void computerMove() {
-		Position[] computerMove = computer.getRandomMove(board);
-		int[] move;
+		// Make computer's move
+		if (board.isCheckmate("Black") == false) {
+			Position[] computerMove = computer.getRandomMove(board);
+			int[] move;
 
-		board.move(computerMove[0], computerMove[1]);
-		updatePieces();
+			board.move(computerMove[0], computerMove[1]);
+			updatePieces();
 
-		// Highlight opponent's move for clarity
-		move = computerMove[1].getIndexes();
-		boardButtons[move[0]][move[1]].setForeground(Color.RED.darker());
+			// Highlight opponent's move for clarity
+			move = computerMove[1].getIndexes();
+			boardButtons[move[0]][move[1]].setForeground(Color.RED.darker());
 
-		move = computerMove[0].getIndexes();
-		boardButtons[move[0]][move[1]].setBackground(highlightDark);
-		moves++;
+			move = computerMove[0].getIndexes();
+			boardButtons[move[0]][move[1]].setBackground(highlightDark);
+			moves++;
+		} else {
+			JOptionPane.showMessageDialog(frame, "Checkmate. You Win.");
+		}
 	}
 
 	public class MyActionListener implements ActionListener {
@@ -237,19 +242,17 @@ public class ChessGUI extends JFrame {
 						if (board.isCheckmate("White") == false) {
 							// Move to the selected position
 							board.move(pos, new Position(i, j));
-							resetColours();
-							updatePieces();
-							moves++;
+							if (board.isCheck("White") == false) {
+								resetColours();
+								updatePieces();
+								moves++;
+								computerMove();
+							} else {
+								board.undo();
+							}
 						} else {
 							JOptionPane.showMessageDialog(frame,
 									"Checkmate. You Lose.");
-						}
-						// Make computer's move
-						if (board.isCheckmate("Black") == false) {
-							computerMove();
-						} else {
-							JOptionPane.showMessageDialog(frame,
-									"Checkmate. You Win.");
 						}
 					}
 

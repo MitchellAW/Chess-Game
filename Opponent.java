@@ -21,7 +21,6 @@ public class Opponent {
 		fromTo[1] = allMoves[1][choice];
 
 		return fromTo;
-
 	}
 
 	public int countPieces(Board board) {

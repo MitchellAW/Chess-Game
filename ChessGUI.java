@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class ChessGUI extends JFrame {
@@ -21,19 +22,22 @@ public class ChessGUI extends JFrame {
 
 	Board board = new Board();
 
+	// Various font and colours used 
 	Color darkBg = new Color(209, 139, 71);
 	Color lightBg = new Color(255, 206, 158);
-	Color highlightLight = new Color(255, 128, 97);
+	Color highlight = new Color(255, 128, 97);
 	Color highlightDark = new Color(255, 102, 71);
+	Font arialMS = new Font("Arial Unicode MS", Font.BOLD, 64);
 
 	Opponent computer = new Opponent("Black");
 
 	Position pos = new Position('a', 1);
 
+	// Chess Board
 	JButton[][] boardButtons;
-	// JButton resetButton = new JButton("Reset");
 	JFrame frame = new JFrame("Mitch's Chess");
 
+	// Menu options
 	JMenuItem reset = new JMenuItem("Reset");
 	JMenuItem easyOption = new JMenuItem("Easy");
 	JMenuItem mediumOption = new JMenuItem("Medium");
@@ -43,10 +47,9 @@ public class ChessGUI extends JFrame {
 		frame.setJMenuBar(createMenuBar());
 		frame.setSize(900, 900);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		frame.setContentPane(createBoard());
 		frame.setVisible(true);
 		frame.setResizable(false);
-		frame.setContentPane(createBoard());
 	}
 
 	public JPanel createBoard() {
@@ -56,9 +59,7 @@ public class ChessGUI extends JFrame {
 		boardButtons = new JButton[8][8];
 
 		gameBoard.setPreferredSize(new Dimension(850, 850));
-
 		mainPanel.add(gameBoard);
-		// mainPanel.add(resetButton);
 
 		// Initialise all the buttons
 		for (int i = 0; i < 8; i++) {
@@ -81,12 +82,11 @@ public class ChessGUI extends JFrame {
 				}
 
 				boardButtons[i][j].setForeground(Color.BLACK);
-				boardButtons[i][j].setText((board.getBoard()[i][j].toString()));
+				boardButtons[i][j].setText((board.getPieceAt(i, j).toString()));
+				boardButtons[i][j].setFont(arialMS);
 
-				gameBoard.add(boardButtons[i][j]);
+				gameBoard.add(boardButtons[i][j]);	
 				boardButtons[i][j].addActionListener(new MyActionListener());
-				boardButtons[i][j]
-						.setFont(new Font("Arial Unicode MS", Font.BOLD, 64));
 			}
 		}
 		return mainPanel;
@@ -100,33 +100,32 @@ public class ChessGUI extends JFrame {
 		menuBar = new JMenuBar();
 		menu = new JMenu("File");
 
+		// Add reset button
 		frame.add(menu);
 		frame.add(reset);
 
 		menuBar.add(menu);
 		menuBar.add(reset);
 
-		// Submenu of difficulties
+		// Add difficulty options to sub-menu
 		submenu = new JMenu("Change Difficulty");
-
 		submenu.add(easyOption);
 		easyOption.addActionListener(new MyActionListener());
-
 		submenu.add(mediumOption);
 		mediumOption.addActionListener(new MyActionListener());
-
 		submenu.add(hardOption);
 		hardOption.addActionListener(new MyActionListener());
 
 		menu.add(submenu);
 
+		// Listen for clicks on reset button
 		reset.addActionListener(new MyActionListener());
 
 		return menuBar;
 	}
 
+	// Reset all the colours of the board
 	public void resetColours() {
-		// Initialise all the buttons
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (i % 2 == 0) {
@@ -147,6 +146,7 @@ public class ChessGUI extends JFrame {
 		}
 	}
 
+	// Update all the pieces displayed in the GUI
 	public void updatePieces() {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -155,89 +155,92 @@ public class ChessGUI extends JFrame {
 		}
 	}
 
+	// Display all moves available at position
 	public void showMoves(Position position) {
 		if (board.getPieceAt(position) instanceof Piece) {
-			Piece piece = ((Piece)board.getPieceAt(position));
+			Piece piece = ((Piece) board.getPieceAt(position));
 			Position[] moves = piece.getMoves(board);
 			for (int i = 0; i < moves.length; i++) {
 				int[] points = moves[i].getIndexes();
 
-				if (boardButtons[points[0]][points[1]].getBackground() == lightBg) {
-					boardButtons[points[0]][points[1]].setBackground(highlightLight);
-
-				} else {
-					boardButtons[points[0]][points[1]].setBackground(highlightDark);
-				}
-				// TODO remove this again eventually after chosen better colours
-				boardButtons[points[0]][points[1]].setBackground(highlightLight);
+				boardButtons[points[0]][points[1]].setBackground(highlight);
 				boardButtons[points[0]][points[1]].setForeground(Color.RED.darker());
 			}
 		}
 	}
 
-	public void move (Position from, Position to) {
-		Object piece = board.getPieceAt(from);
-		if (piece instanceof Piece) {
-			board.newPiece(from, "");
-			board.newPiece(to, piece);
-			((Piece)piece).setPosition(to);
-		}
+	// Computer will make it's move
+	public void computerMove() {
+		Position[] computerMove = computer.getRandomMove(board);
+		int[] move;
+
+		board.move(computerMove[0], computerMove[1]);
+
+		updatePieces();
+
+		// Highlight opponent's move for clarity
+		move = computerMove[1].getIndexes();
+		boardButtons[move[0]][move[1]].setForeground(Color.RED.darker());
+
+		move = computerMove[0].getIndexes();
+		boardButtons[move[0]][move[1]].setBackground(highlightDark);
+		moves++;
 	}
 
 	public class MyActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			//			Position pos = new Position('a', 1);
-			updatePieces();
-
 			if (e.getSource() == reset) {
 				board.reset();
-				for (int i = 0; i < 8; i++) {
-					for (int j = 0; j < 8; j++) {
-						boardButtons[i][j].setText((board.getBoard()[i][j].toString()));
-					}
-					moves = 0;
-					resetColours();
-					updatePieces();
-				}
-			} else {
-				for (int i = 0; i < 8; i++) {
-					for (int j = 0; j < 8; j++) {
-						if (e.getSource() == boardButtons[i][j] && 
-								boardButtons[i][j].getBackground() != highlightDark &&
-								boardButtons[i][j].getBackground() != highlightLight) {
-							if (board.getPieceAt(i, j) instanceof Piece) {
-								if (((Piece)board.getPieceAt(i, j)).getColour() == "White") {
-									resetColours();
-									pos = ((Piece)board.getPieceAt(i, j)).getPosition();
-									showMoves(pos);
-								}
-							} else {
-								resetColours();
-							}
-						} else if (e.getSource() == boardButtons[i][j] 
-								&& moves % 2 == 0) {
-							move(pos, new Position(i, j));
+				updatePieces();
+				resetColours();
+			}
+			for (int i = 0; i < 8; i++) {
+				for (int j = 0; j < 8; j++) {
+					// Show the available moves if white piece is clicked
+					if (e.getSource() == boardButtons[i][j] && 
+							boardButtons[i][j].getBackground() != highlight) {
+
+						// Highlight available moves and set the piece position
+						if (board.getColourAt(new Position(i, j)) == "White") {
 							resetColours();
-							moves++;
+							pos = ((Piece) board.getPieceAt(i, j)).getPosition();
+							showMoves(pos);
+
+							// If a white piece isn't clicked, clear the 
+							// highlighted moves
+						} else {
 							resetColours();
-							Position[] computerMove = computer.getRandomMove(board);
-							move(computerMove[0], computerMove[1]);
-							int[] computerPoints = computerMove[1].getIndexes();
-							boardButtons[computerPoints[0]][computerPoints[1]].setForeground(Color.RED.darker());
-							computerPoints = computerMove[0].getIndexes();
-							boardButtons[computerPoints[0]][computerPoints[1]].setBackground(highlightLight);
+						}
+						// Player's move
+					} else if (e.getSource() == boardButtons[i][j] && 
+							moves % 2 == 0 && 
+							board.getColourAt(pos) == "White") {
+
+						if (board.isCheckmate("White") == false) {
+							// Move to the selected position
+							board.move(pos, new Position(i, j));
+							resetColours();
+							updatePieces();
 							moves++;
+						} else {
+							JOptionPane.showMessageDialog(frame, "Checkmate. You Lose.");						
+						}
+						// Make computer's move
+						if (board.isCheckmate("Black") == false) {
+							computerMove();
+						} else {
+							JOptionPane.showMessageDialog(frame, "Checkmate. You Win.");						
 						}
 					}
+
 				}
 			}
 			updatePieces();
 		}
 	}
 
+
 	public static void main(String[] args) {
 		new ChessGUI();
-
 	}
-
 }

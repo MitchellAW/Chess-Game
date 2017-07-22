@@ -87,7 +87,7 @@ public class Pawn extends Piece {
 
 		return moves;
 	}
-	
+
 	// Max distance of pawn is 2 if hasn't moved
 	public int getMaxDistance() {
 		if (this.getColour().equals("White")) {

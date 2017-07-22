@@ -4,8 +4,7 @@ import java.util.List;
 public class Board {
 
 	private Object[][] board = new Object[8][8];
-	//	Object[][] moves = new Object[1][4];
-	List<Object[]> moves = new ArrayList<Object[]>();
+	private List<Object[]> moveHistory = new ArrayList<Object[]>();
 
 	public Board() {
 		reset();
@@ -13,6 +12,9 @@ public class Board {
 
 	// Resets the board with pieces in starting positions
 	public void reset() {
+		// Reset Move History
+		moveHistory = new ArrayList<Object[]>();
+
 		// Setup Pawns
 		for (int i = 0; i < 8; i++) {
 			this.board[1][i] = new Pawn(new Position((char) (i + 97), 7),
@@ -47,6 +49,10 @@ public class Board {
 			this.board[7 * i][7] = new Rook(new Position('h', 8 - (7 * i)),
 					currentColour);
 		}
+	}
+
+	public List<Object[]> getMoveHistory() {
+		return this.moveHistory;
 	}
 
 	// Will return if the move is valid
@@ -184,61 +190,91 @@ public class Board {
 		movements[1] = allMoves;
 		return movements;
 	}
-	
+
 	// Counts all of the possible moves that can be made by colour
-		public int countAllLegalMoves(String colour) {
-			int moveCount = 0;
-			Position[][] allMoves = getAllMoves(colour);
+	public int countAllLegalMoves(String colour) {
+		int moveCount = 0;
+		Position[][] allMoves = getAllMoves(colour);
 
-			for (int i = 0; i < allMoves[0].length; i++) {
-				move(allMoves[0][i], allMoves[1][i]);
-				if (isCheck(colour) == false) {
-					moveCount++;
-				}
-				undo();
+		for (int i = 0; i < allMoves[0].length; i++) {
+			move(allMoves[0][i], allMoves[1][i]);
+			if (isCheck(colour) == false) {
+				moveCount++;
 			}
-			return moveCount;
+			undo();
+		}
+		return moveCount;
+	}
+
+	// Counts all of the possible moves that can be made by colour
+	public Position[][] getAllLegalMoves(String colour) {
+		int index = 0;
+		Position[][] allMoves = getAllMoves(colour);
+		Position[] preLegalMoves = new Position[countAllLegalMoves(colour)];
+		Position[] allLegalMoves = new Position[countAllLegalMoves(colour)];
+
+		for (int i = 0; i < allMoves[0].length; i++) {
+			move(allMoves[0][i], allMoves[1][i]);
+			if (isCheck(colour) == false) {
+				allLegalMoves[index] = allMoves[1][i];
+				preLegalMoves[index] = allMoves[0][i];
+				index++;
+			}
+			undo();
 		}
 
-		// Counts all of the possible moves that can be made by colour
-		public Position[][] getAllLegalMoves(String colour) {
-			int index = 0;
-			Position[][] allMoves = getAllMoves(colour);
-			Position[] preLegalMoves = new Position[countAllLegalMoves(colour)]; 
-			Position[] allLegalMoves = new Position[countAllLegalMoves(colour)]; 
-
-
-			for (int i = 0; i < allMoves[0].length; i++) {
-				move(allMoves[0][i], allMoves[1][i]);
-				if (isCheck(colour) == false) {
-					allLegalMoves[index] = allMoves[1][i];
-					preLegalMoves[index] = allMoves[0][i];
-					index++;
-				}
-				undo();
-			}
-			
-			Position[][] movements = new Position[2][countAllLegalMoves(colour)];
-			movements[0] = preLegalMoves;
-			movements[1] = allLegalMoves;
-			return movements;
-		}
+		Position[][] movements = new Position[2][countAllLegalMoves(colour)];
+		movements[0] = preLegalMoves;
+		movements[1] = allLegalMoves;
+		return movements;
+	}
 
 	// Undoes the changes made by the last move, using the moves array
 	public void undo() {
-		if (this.moves.size() > 0) {
+		if (this.moveHistory.size() > 0) {
 			// Undo the last move
-			Object piecePreMove = this.moves.get(moves.size() - 1)[0];
-			Object pieceAtMove = this.moves.get(moves.size() - 1)[1];
+			Object piecePreMove = this.moveHistory
+					.get(moveHistory.size() - 1)[0];
+			Object pieceAtMove = this.moveHistory
+					.get(moveHistory.size() - 1)[1];
 
-			Position from = (Position) this.moves.get(moves.size() - 1)[2];
-			Position to = (Position) this.moves.get(moves.size() - 1)[3];
+			Position from = (Position) this.moveHistory
+					.get(moveHistory.size() - 1)[2];
+			Position to = (Position) this.moveHistory
+					.get(moveHistory.size() - 1)[3];
 
 			newPiece(from, piecePreMove);
 			newPiece(to, pieceAtMove);
 
-			this.moves.remove(moves.size() - 1);
+			this.moveHistory.remove(moveHistory.size() - 1);
 		}
+	}
+
+	public int[] countPieces(String colour) {
+
+		// # Of Pawns, Rooks, Knights, Bishops, Queens and Kings
+		int[] pieceCounts = { 0, 0, 0, 0, 0, 0 };
+
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (getColourAt(new Position(i, j)).equals(colour)) {
+					if (this.board[i][j] instanceof Pawn) {
+						pieceCounts[0]++;
+					} else if (this.board[i][j] instanceof Rook) {
+						pieceCounts[1]++;
+					} else if (this.board[i][j] instanceof Knight) {
+						pieceCounts[2]++;
+					} else if (this.board[i][j] instanceof Bishop) {
+						pieceCounts[3]++;
+					} else if (this.board[i][j] instanceof Queen) {
+						pieceCounts[4]++;
+					} else if (this.board[i][j] instanceof King) {
+						pieceCounts[5]++;
+					}
+				}
+			}
+		}
+		return pieceCounts;
 	}
 
 	// Makes the move and stores its history in moves
@@ -248,8 +284,8 @@ public class Board {
 		newPiece(from, "");
 		newPiece(to, piecePreMove);
 
-		Object[] piecesMoved = {piecePreMove, pieceAtMove, from, to};
-		this.moves.add(piecesMoved);
+		Object[] piecesMoved = { piecePreMove, pieceAtMove, from, to };
+		this.moveHistory.add(piecesMoved);
 	}
 
 	// Board as a string

@@ -13,8 +13,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 
 public class ChessGUI extends JFrame {
 
@@ -40,6 +38,8 @@ public class ChessGUI extends JFrame {
 
 	// Menu options
 	JButton undo = new JButton("Undo");
+	JMenuItem credits = new JMenuItem("Credits");
+	JMenuItem exit = new JMenuItem("Exit");
 	JMenuItem reset = new JMenuItem("Reset");
 	JMenuItem easyOption = new JMenuItem("Easy");
 	JMenuItem mediumOption = new JMenuItem("Medium");
@@ -116,8 +116,8 @@ public class ChessGUI extends JFrame {
 		JMenu menu = new JMenu("File");
 
 		// Creating menu items
-		JMenuItem credits = new JMenuItem("Credits");
-		JMenuItem exit = new JMenuItem("Exit");
+		credits.addActionListener(new MyActionListener());
+		exit.addActionListener(new MyActionListener());
 
 		// Adding Menu Items
 		menu.add(difficulty);
@@ -196,8 +196,18 @@ public class ChessGUI extends JFrame {
 			move = computerMove[0].getIndexes();
 			boardButtons[move[0]][move[1]].setBackground(highlightDark);
 			moves++;
+
+			if (board.isCheckmate("White") == true) {
+				JOptionPane.showMessageDialog(frame, "Checkmate. You Lose.",
+						"Checkmate", JOptionPane.INFORMATION_MESSAGE);
+			} else if (board.isCheck("White")) {
+				JOptionPane.showMessageDialog(frame, "You are in check.",
+						"Check", JOptionPane.INFORMATION_MESSAGE);
+
+			}
 		} else {
-			JOptionPane.showMessageDialog(frame, "Checkmate. You Win.");
+			JOptionPane.showMessageDialog(frame, "Checkmate. You Win.",
+					"Checkmate", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
@@ -214,6 +224,14 @@ public class ChessGUI extends JFrame {
 				moves -= 2;
 				updatePieces();
 				resetColours();
+			}
+			if (e.getSource() == credits) {
+				JOptionPane.showMessageDialog(frame,
+						"Copyright © 2017 Mitchell Woollatt", "Credits",
+						JOptionPane.INFORMATION_MESSAGE);
+			}
+			if (e.getSource() == exit) {
+				System.exit(0);
 			}
 			for (int i = 0; i < 8; i++) {
 				for (int j = 0; j < 8; j++) {
@@ -252,7 +270,8 @@ public class ChessGUI extends JFrame {
 							}
 						} else {
 							JOptionPane.showMessageDialog(frame,
-									"Checkmate. You Lose.");
+									"Checkmate. You Lose.", "Checkmate",
+									JOptionPane.INFORMATION_MESSAGE);
 						}
 					}
 

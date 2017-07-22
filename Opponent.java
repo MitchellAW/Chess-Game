@@ -21,7 +21,7 @@ public class Opponent {
 				board.undo();
 				bestMove[0] = allMoves[0][i];
 				bestMove[1] = allMoves[1][i];
-//				System.out.println("Checkmate");
+				// System.out.println("Checkmate");
 				return bestMove;
 			}
 			board.undo();
@@ -34,7 +34,7 @@ public class Opponent {
 				board.undo();
 				bestMove[0] = allMoves[0][i];
 				bestMove[1] = allMoves[1][i];
-//				System.out.println("Check");
+				// System.out.println("Check");
 				return bestMove;
 			}
 			board.undo();
@@ -45,12 +45,12 @@ public class Opponent {
 		// Take the piece of highest value
 		for (int i = 0; i < allMoves[0].length; i++) {
 			if (board.getColourAt(allMoves[1][i]).equals(getOppositeColour())) {
-				Piece piece = ((Piece)board.getPieceAt(allMoves[1][i]));
+				Piece piece = ((Piece) board.getPieceAt(allMoves[1][i]));
 				if (piece.getValue() > highestValue) {
 					highestValue = piece.getValue();
 					bestMove[0] = allMoves[0][i];
 					bestMove[1] = allMoves[1][i];
-//					System.out.println("Take piece");
+					// System.out.println("Take piece");
 				}
 			}
 		}

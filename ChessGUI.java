@@ -5,14 +5,20 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 
 public class ChessGUI extends JFrame {
 
@@ -40,14 +46,16 @@ public class ChessGUI extends JFrame {
 	JButton undo = new JButton("Undo");
 	JMenuItem credits = new JMenuItem("Credits");
 	JMenuItem exit = new JMenuItem("Exit");
-	JMenuItem reset = new JMenuItem("Reset");
+	JButton reset = new JButton("Reset");
 	JMenuItem easyOption = new JMenuItem("Easy");
 	JMenuItem mediumOption = new JMenuItem("Medium");
 	JMenuItem hardOption = new JMenuItem("Hard");
+	JTextArea moveDisplay = new JTextArea(16, 32);
+
 
 	public ChessGUI() {
 		frame.setJMenuBar(createMenuBar());
-		frame.setSize(1000, 1000);
+		frame.setSize(1250, 1000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(createBoard());
 		frame.setVisible(true);
@@ -58,12 +66,37 @@ public class ChessGUI extends JFrame {
 	public JPanel createBoard() {
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		JPanel gameBoard = new JPanel(new GridLayout(8, 8));
+		JPanel sidePanel = new JPanel();
 
 		boardButtons = new JButton[8][8];
 
+		JLabel title = new JLabel("Mitch's Chess", SwingConstants.CENTER);
+		JLabel field = new JLabel("Move History", SwingConstants.CENTER);
+		title.setFont(new Font("Arial Unicode MS", Font.BOLD, 48));
+		field.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
+
+		moveDisplay.setEditable(false);
+		moveDisplay.setFont(new Font("Arial Unicode MS", Font.PLAIN, 14));
+		JScrollPane scroll = new JScrollPane(moveDisplay);
+		scroll.setVerticalScrollBarPolicy(
+				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
 		gameBoard.setPreferredSize(new Dimension(850, 850));
-		mainPanel.add(gameBoard, BorderLayout.CENTER);
-		mainPanel.add(undo, BorderLayout.PAGE_END);
+		mainPanel.add(gameBoard, BorderLayout.WEST);
+		mainPanel.add(sidePanel, BorderLayout.CENTER);
+
+		sidePanel.add(title);
+		sidePanel.add(field);
+		sidePanel.add(scroll);
+		sidePanel.add(undo);
+		sidePanel.add(reset);
+
+//		for (int i = 1; i < 32; i++) {
+//			moveDisplay.setText(i + ".\n" + moveDisplay.getText());
+//		}
+
+		undo.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
+		reset.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
 
 		undo.addActionListener(new MyActionListener());
 
@@ -122,7 +155,7 @@ public class ChessGUI extends JFrame {
 		// Adding Menu Items
 		menu.add(difficulty);
 		// menu.add(undo);
-		menu.add(reset);
+		// menu.add(reset);
 		menu.add(credits);
 		menu.add(exit);
 
@@ -179,6 +212,22 @@ public class ChessGUI extends JFrame {
 		}
 	}
 
+	public void updateMoveHistory() {
+		List<Object[]> moveHistory = board.getMoveHistory();
+		String captured;
+//		Object[] piecesMoved = { piecePreMove, pieceAtMove, from, to };
+		moveDisplay.setText("");
+		
+		for (int i = 0; i < moveHistory.size(); i++) {
+			if (moveHistory.get(i)[1].equals("")) {
+				captured = "";
+			} else {
+				captured = "x";
+			}
+			moveDisplay.setText((i + 1) + ". " + moveHistory.get(i)[0].toString() + captured + moveHistory.get(i)[3].toString() + "\n" + moveDisplay.getText());
+		}
+	}
+
 	// Computer will make it's move
 	public void computerMove() {
 		// Make computer's move
@@ -188,6 +237,7 @@ public class ChessGUI extends JFrame {
 
 			board.move(computerMove[0], computerMove[1]);
 			updatePieces();
+			updateMoveHistory();
 
 			// Highlight opponent's move for clarity
 			move = computerMove[1].getIndexes();
@@ -262,8 +312,10 @@ public class ChessGUI extends JFrame {
 							board.move(pos, new Position(i, j));
 							if (board.isCheck("White") == false) {
 								resetColours();
+								updateMoveHistory();
 								updatePieces();
 								moves++;
+
 								computerMove();
 							} else {
 								board.undo();
@@ -277,6 +329,7 @@ public class ChessGUI extends JFrame {
 
 				}
 			}
+			updateMoveHistory();
 			updatePieces();
 		}
 	}

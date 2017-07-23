@@ -112,11 +112,11 @@ public class Board {
 			oppColour = "Black";
 		}
 
-		Position[][] oppMoves = getAllMoves(oppColour);
+		List<List<Position>> oppMoves = getAllMoves(oppColour);
 
-		for (int i = 0; i < oppMoves[1].length; i++) {
-			if (getPieceAt(oppMoves[1][i]) instanceof King) {
-				if (((King) getPieceAt(oppMoves[1][i])).getColour()
+		for (int i = 0; i < oppMoves.get(1).size(); i++) {
+			if (getPieceAt(oppMoves.get(1).get(i)) instanceof King) {
+				if (((King) getPieceAt(oppMoves.get(1).get(i))).getColour()
 						.equals(colour)) {
 					return true;
 				}
@@ -129,13 +129,13 @@ public class Board {
 	// Checks every move colour can make, if any of them can get them out of
 	// check, then they are not in checkmate
 	public boolean isCheckmate(String colour) {
-		Position[][] moves = getAllMoves(colour);
+		List<List<Position>> moves = getAllMoves(colour);
 
 		if (isCheck(colour) == false) {
 			return false;
 		}
-		for (int i = 0; i < moves[0].length; i++) {
-			move(moves[0][i], moves[1][i]);
+		for (int i = 0; i < moves.get(0).size(); i++) {
+			move(moves.get(0).get(i), moves.get(1).get(i));
 			if (isCheck(colour) == false) {
 				undo();
 				return false;
@@ -145,87 +145,50 @@ public class Board {
 		return true;
 	}
 
-	// Counts all of the possible moves that can be made by colour
-	public int countAllMoves(String colour) {
-		int moveCount = 0;
-
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				if (getPieceAt(i, j) instanceof Piece) {
-					if (((Piece) getPieceAt(i, j)).getColour() == colour) {
-						moveCount += ((Piece) getPieceAt(i, j))
-								.countMoves(this);
-					}
-				}
-			}
-		}
-		return moveCount;
-	}
-
 	// Gathers all of the possible moves that can be made by colour
-	public Position[][] getAllMoves(String colour) {
-		Position[] preMoves = new Position[countAllMoves(colour)];
-		Position[] allMoves = new Position[countAllMoves(colour)];
-
-		int index = 0;
+	public List<List<Position>> getAllMoves(String colour) {
+		List<Position> preMoves = new ArrayList<Position>();
+		List<Position> allMoves = new ArrayList<Position>();
 
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (getPieceAt(i, j) instanceof Piece) {
 					if (((Piece) getPieceAt(i, j)).getColour() == colour) {
-
-						Position[] moves = ((Piece) getPieceAt(i, j))
+						List<Position> moves = ((Piece) getPieceAt(i, j))
 								.getMoves(this);
-						for (int k = 0; k < moves.length; k++) {
-							allMoves[index] = moves[k];
-							preMoves[index] = new Position(i, j);
-							index++;
+						for (int k = 0; k < moves.size(); k++) {
+							allMoves.add(moves.get(k));
+							preMoves.add(new Position(i, j));
 						}
 					}
 				}
 			}
 		}
-		Position[][] movements = new Position[2][countAllMoves(colour)];
-		movements[0] = preMoves;
-		movements[1] = allMoves;
+		List<List<Position>> movements = new ArrayList<List<Position>>();
+		movements.add(preMoves);
+		movements.add(allMoves);
+
 		return movements;
 	}
 
 	// Counts all of the possible moves that can be made by colour
-	public int countAllLegalMoves(String colour) {
-		int moveCount = 0;
-		Position[][] allMoves = getAllMoves(colour);
+	public List<List<Position>> getAllLegalMoves(String colour) {
+		List<List<Position>> allMoves = getAllMoves(colour);
+		List<Position> preLegalMoves = new ArrayList<Position>();
+		List<Position> allLegalMoves = new ArrayList<Position>();
 
-		for (int i = 0; i < allMoves[0].length; i++) {
-			move(allMoves[0][i], allMoves[1][i]);
+		for (int i = 0; i < allMoves.get(0).size(); i++) {
+			move(allMoves.get(0).get(i), allMoves.get(1).get(i));
 			if (isCheck(colour) == false) {
-				moveCount++;
+				preLegalMoves.add(allMoves.get(0).get(i));
+				allLegalMoves.add(allMoves.get(1).get(i));
 			}
 			undo();
 		}
-		return moveCount;
-	}
+		List<List<Position>> movements = new ArrayList<List<Position>>();
 
-	// Counts all of the possible moves that can be made by colour
-	public Position[][] getAllLegalMoves(String colour) {
-		int index = 0;
-		Position[][] allMoves = getAllMoves(colour);
-		Position[] preLegalMoves = new Position[countAllLegalMoves(colour)];
-		Position[] allLegalMoves = new Position[countAllLegalMoves(colour)];
-
-		for (int i = 0; i < allMoves[0].length; i++) {
-			move(allMoves[0][i], allMoves[1][i]);
-			if (isCheck(colour) == false) {
-				allLegalMoves[index] = allMoves[1][i];
-				preLegalMoves[index] = allMoves[0][i];
-				index++;
-			}
-			undo();
-		}
-
-		Position[][] movements = new Position[2][countAllLegalMoves(colour)];
-		movements[0] = preLegalMoves;
-		movements[1] = allLegalMoves;
+		movements.add(preLegalMoves);
+		movements.add(allLegalMoves);
 		return movements;
 	}
 

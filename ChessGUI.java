@@ -52,7 +52,6 @@ public class ChessGUI extends JFrame {
 	JMenuItem hardOption = new JMenuItem("Hard");
 	JTextArea moveDisplay = new JTextArea(16, 32);
 
-
 	public ChessGUI() {
 		frame.setJMenuBar(createMenuBar());
 		frame.setSize(1250, 1000);
@@ -90,10 +89,6 @@ public class ChessGUI extends JFrame {
 		sidePanel.add(scroll);
 		sidePanel.add(undo);
 		sidePanel.add(reset);
-
-//		for (int i = 1; i < 32; i++) {
-//			moveDisplay.setText(i + ".\n" + moveDisplay.getText());
-//		}
 
 		undo.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
 		reset.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
@@ -201,9 +196,9 @@ public class ChessGUI extends JFrame {
 	public void showMoves(Position position) {
 		if (board.getPieceAt(position) instanceof Piece) {
 			Piece piece = ((Piece) board.getPieceAt(position));
-			Position[] moves = piece.getMoves(board);
-			for (int i = 0; i < moves.length; i++) {
-				int[] points = moves[i].getIndexes();
+			List<Position> moves = piece.getMoves(board);
+			for (int i = 0; i < moves.size(); i++) {
+				int[] points = moves.get(i).getIndexes();
 
 				boardButtons[points[0]][points[1]].setBackground(highlight);
 				boardButtons[points[0]][points[1]]
@@ -215,16 +210,17 @@ public class ChessGUI extends JFrame {
 	public void updateMoveHistory() {
 		List<Object[]> moveHistory = board.getMoveHistory();
 		String captured;
-//		Object[] piecesMoved = { piecePreMove, pieceAtMove, from, to };
 		moveDisplay.setText("");
-		
+
 		for (int i = 0; i < moveHistory.size(); i++) {
 			if (moveHistory.get(i)[1].equals("")) {
 				captured = "";
 			} else {
 				captured = "x";
 			}
-			moveDisplay.setText((i + 1) + ". " + moveHistory.get(i)[0].toString() + captured + moveHistory.get(i)[3].toString() + "\n" + moveDisplay.getText());
+			moveDisplay.append(((i + 1) + ". "
+					+ moveHistory.get(i)[0].toString() + captured
+					+ moveHistory.get(i)[3].toString() + "\n"));
 		}
 	}
 

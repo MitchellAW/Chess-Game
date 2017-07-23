@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Random;
 
 public class Opponent {
@@ -12,29 +13,29 @@ public class Opponent {
 	public Position[] getRandomMove(Board board) {
 
 		Position[] bestMove = new Position[2];
-		Position[][] allMoves = board.getAllLegalMoves(this.colour);
+		List<List<Position>> allMoves = board.getAllLegalMoves(this.colour);
 
-		for (int i = 0; i < allMoves[0].length; i++) {
-			board.move(allMoves[0][i], allMoves[1][i]);
+		for (int i = 0; i < allMoves.get(0).size(); i++) {
+			board.move(allMoves.get(0).get(i), allMoves.get(1).get(i));
 			// If a move will checkmate the opponent, take it
 			if (board.isCheckmate(getOppositeColour())) {
 				board.undo();
-				bestMove[0] = allMoves[0][i];
-				bestMove[1] = allMoves[1][i];
-				// System.out.println("Checkmate");
+				bestMove[0] = allMoves.get(0).get(i);
+				bestMove[1] = allMoves.get(1).get(i);
+				System.out.println("Checkmate");
 				return bestMove;
 			}
 			board.undo();
 		}
 
-		for (int i = 0; i < allMoves[0].length; i++) {
-			board.move(allMoves[0][i], allMoves[1][i]);
+		for (int i = 0; i < allMoves.get(0).size(); i++) {
+			board.move(allMoves.get(0).get(i), allMoves.get(1).get(i));
 			// If a move will check the opponent, take it
 			if (board.isCheck(getOppositeColour())) {
 				board.undo();
-				bestMove[0] = allMoves[0][i];
-				bestMove[1] = allMoves[1][i];
-				// System.out.println("Check");
+				bestMove[0] = allMoves.get(0).get(i);
+				bestMove[1] = allMoves.get(1).get(i);
+				System.out.println("Check");
 				return bestMove;
 			}
 			board.undo();
@@ -43,13 +44,15 @@ public class Opponent {
 		int highestValue = 0;
 
 		// Take the piece of highest value
-		for (int i = 0; i < allMoves[0].length; i++) {
-			if (board.getColourAt(allMoves[1][i]).equals(getOppositeColour())) {
-				Piece piece = ((Piece) board.getPieceAt(allMoves[1][i]));
+		for (int i = 0; i < allMoves.get(0).size(); i++) {
+			if (board.getColourAt(allMoves.get(1).get(i))
+					.equals(getOppositeColour())) {
+				Piece piece = ((Piece) board
+						.getPieceAt(allMoves.get(1).get(i)));
 				if (piece.getValue() > highestValue) {
 					highestValue = piece.getValue();
-					bestMove[0] = allMoves[0][i];
-					bestMove[1] = allMoves[1][i];
+					bestMove[0] = allMoves.get(0).get(i);
+					bestMove[1] = allMoves.get(1).get(i);
 					// System.out.println("Take piece");
 				}
 			}
@@ -60,10 +63,10 @@ public class Opponent {
 		}
 
 		// Make a random move
-		int choice = rand.nextInt(allMoves[0].length);
+		int choice = rand.nextInt(allMoves.get(0).size());
 
-		bestMove[0] = allMoves[0][choice];
-		bestMove[1] = allMoves[1][choice];
+		bestMove[0] = allMoves.get(0).get(choice);
+		bestMove[1] = allMoves.get(1).get(choice);
 
 		return bestMove;
 	}

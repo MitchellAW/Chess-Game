@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Piece {
 
@@ -37,14 +39,13 @@ public abstract class Piece {
 	}
 
 	public boolean canMove(Board board) {
-		return (countMoves(board) > 0);
+		return (getMoves(board).size() > 0);
 	}
 
 	// Gets all the moves that piece can make given the current board
-	public Position[] getMoves(Board board) {
-		Position[] moves = new Position[countMoves(board)];
+	public List<Position> getMoves(Board board) {
+		List<Position> moves = new ArrayList<Position>();
 		Position curr = this.getPosition();
-		int index = 0;
 		for (int i = 0; i < this.getDirections().length; i++) {
 			for (int j = 1; j <= this.getMaxDistance(); j++) {
 				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
@@ -52,47 +53,19 @@ public abstract class Piece {
 							curr.positionAt(this.getDirections()[i], j));
 					if (pieceAt instanceof Piece) {
 						if (((Piece) pieceAt).getColour() != this.getColour()) {
-							moves[index] = curr
-									.positionAt(this.getDirections()[i], j);
-							index++;
+							moves.add(curr.positionAt(this.getDirections()[i],
+									j));
 							break;
 						} else {
 							break;
 						}
 					} else {
-						moves[index] = curr.positionAt(this.getDirections()[i],
-								j);
-						index++;
+						moves.add(curr.positionAt(this.getDirections()[i], j));
 					}
 				}
 			}
 		}
 		return moves;
-	}
-
-	// Counts all the moves that piece can make given the current board
-	public int countMoves(Board board) {
-		int moveCount = 0;
-		Position curr = this.getPosition();
-		for (int i = 0; i < this.getDirections().length; i++) {
-			for (int j = 1; j <= this.getMaxDistance(); j++) {
-				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
-					Object pieceAt = board.getPieceAt(
-							curr.positionAt(this.getDirections()[i], j));
-					if (pieceAt instanceof Piece) {
-						if (((Piece) pieceAt).getColour() != this.getColour()) {
-							moveCount++;
-							break;
-						} else {
-							break;
-						}
-					} else {
-						moveCount++;
-					}
-				}
-			}
-		}
-		return moveCount;
 	}
 
 	public abstract int getMaxDistance();

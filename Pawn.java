@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 
 public class Pawn extends Piece {
 	private int[] directions = new int[3];
@@ -18,44 +20,10 @@ public class Pawn extends Piece {
 		}
 	}
 
-	// Count all possible (valid) moves
-	public int countMoves(Board board) {
-		int moveCount = 0;
-		Position curr = this.getPosition();
-
-		for (int i = 0; i < directions.length; i++) {
-			if (i % 2 == 0) {
-				if (curr.positionAt(this.directions[i], 1).isValid()) {
-					Object pieceAt = board
-							.getPieceAt(curr.positionAt(directions[i], 1));
-					if (pieceAt instanceof Piece) {
-						if (((Piece) pieceAt).getColour() != this.getColour()) {
-							moveCount++;
-						}
-					}
-				}
-			} else {
-				if (curr.positionAt(this.directions[i], 1).isValid()) {
-					for (int j = 1; j <= this.getMaxDistance(); j++) {
-						Object pieceAt = board
-								.getPieceAt(curr.positionAt(directions[i], j));
-						if (pieceAt instanceof Piece) {
-							break;
-						} else {
-							moveCount++;
-						}
-					}
-				}
-			}
-		}
-		return moveCount;
-	}
-
 	// Get all possible (valid) moves
-	public Position[] getMoves(Board board) {
-		Position[] moves = new Position[countMoves(board)];
+	public List<Position> getMoves(Board board) {
+		List<Position> moves = new ArrayList<Position>();
 		Position curr = this.getPosition();
-		int index = 0;
 
 		for (int i = 0; i < directions.length; i++) {
 			if (i % 2 == 0) {
@@ -64,8 +32,7 @@ public class Pawn extends Piece {
 							.getPieceAt(curr.positionAt(directions[i], 1));
 					if (pieceAt instanceof Piece) {
 						if (((Piece) pieceAt).getColour() != this.getColour()) {
-							moves[index] = curr.positionAt(directions[i], 1);
-							index++;
+							moves.add(curr.positionAt(directions[i], 1));
 						}
 					}
 				}
@@ -77,8 +44,7 @@ public class Pawn extends Piece {
 						if (pieceAt instanceof Piece) {
 							break;
 						} else {
-							moves[index] = curr.positionAt(directions[i], j);
-							index++;
+							moves.add(curr.positionAt(directions[i], j));
 						}
 					}
 				}

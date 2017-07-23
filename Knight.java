@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 
 public class Knight extends Piece {
 	private int[] directions = { 8, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -7,36 +9,10 @@ public class Knight extends Piece {
 		super(position, colour, 3);
 	}
 
-	// Count all possible (valid) moves
-	public int countMoves(Board board) {
-		int moveCount = 0;
-		Position curr = this.getPosition();
-
-		for (int i = 1; i < directions.length; i += 2) {
-			for (int j = -1; j < 2; j += 2) {
-				// Move north, east, south or west
-				Position newPos = curr.positionAt(directions[i], 1);
-				if (newPos.positionAt(directions[i + j], 1).isValid()) {
-					Position newPos2 = newPos.positionAt(directions[i + j], 1);
-					Object pieceAt = board.getPieceAt(newPos2);
-					if (pieceAt instanceof Piece) {
-						if (((Piece) pieceAt).getColour() != this.getColour()) {
-							moveCount++;
-						}
-					} else {
-						moveCount++;
-					}
-				}
-			}
-		}
-		return moveCount;
-	}
-
 	// Get all possible (valid) moves
-	public Position[] getMoves(Board board) {
-		Position[] moves = new Position[countMoves(board)];
+	public List<Position> getMoves(Board board) {
+		List<Position> moves = new ArrayList<Position>();
 		Position curr = this.getPosition();
-		int index = 0;
 
 		for (int i = 1; i < directions.length; i += 2) {
 			for (int j = -1; j < 2; j += 2) {
@@ -47,12 +23,10 @@ public class Knight extends Piece {
 					Object pieceAt = board.getPieceAt(newPos2);
 					if (pieceAt instanceof Piece) {
 						if (((Piece) pieceAt).getColour() != this.getColour()) {
-							moves[index] = newPos2;
-							index++;
+							moves.add(newPos2);
 						}
 					} else {
-						moves[index] = newPos2;
-						index++;
+						moves.add(newPos2);
 					}
 				}
 			}

@@ -228,7 +228,7 @@ public class ChessGUI extends JFrame {
 	public void computerMove() {
 		// Make computer's move
 		if (board.isCheckmate("Black") == false) {
-			Position[] computerMove = computer.getRandomMove(board);
+			Position[] computerMove = computer.getMove(board);
 			int[] move;
 
 			board.move(computerMove[0], computerMove[1]);

@@ -10,7 +10,7 @@ public class Opponent {
 		this.colour = colour;
 	}
 
-	public Position[] getRandomMove(Board board) {
+	public Position[] getMove(Board board) {
 
 		Position[] bestMove = new Position[2];
 		List<List<Position>> allMoves = board.getAllLegalMoves(this.colour);
@@ -22,7 +22,6 @@ public class Opponent {
 				board.undo();
 				bestMove[0] = allMoves.get(0).get(i);
 				bestMove[1] = allMoves.get(1).get(i);
-				System.out.println("Checkmate");
 				return bestMove;
 			}
 			board.undo();
@@ -35,7 +34,6 @@ public class Opponent {
 				board.undo();
 				bestMove[0] = allMoves.get(0).get(i);
 				bestMove[1] = allMoves.get(1).get(i);
-				System.out.println("Check");
 				return bestMove;
 			}
 			board.undo();
@@ -53,7 +51,6 @@ public class Opponent {
 					highestValue = piece.getValue();
 					bestMove[0] = allMoves.get(0).get(i);
 					bestMove[1] = allMoves.get(1).get(i);
-					// System.out.println("Take piece");
 				}
 			}
 		}
@@ -69,42 +66,6 @@ public class Opponent {
 		bestMove[1] = allMoves.get(1).get(choice);
 
 		return bestMove;
-	}
-
-	public int countPieces(Board board) {
-		int pieceCount = 0;
-
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				Object pieceAt = board.getPieceAt(i, j);
-				if (pieceAt instanceof Piece) {
-					if (((Piece) pieceAt).getColour() == this.colour
-							&& ((Piece) pieceAt).canMove(board)) {
-						pieceCount++;
-					}
-				}
-			}
-		}
-		return pieceCount;
-	}
-
-	public Piece[] getPieces(Board board) {
-		Piece[] pieces = new Piece[countPieces(board)];
-		int index = 0;
-
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				Object pieceAt = board.getPieceAt(i, j);
-				if (pieceAt instanceof Piece) {
-					if (((Piece) pieceAt).getColour() == this.colour
-							&& ((Piece) pieceAt).canMove(board)) {
-						pieces[index] = (Piece) pieceAt;
-						index++;
-					}
-				}
-			}
-		}
-		return pieces;
 	}
 
 	public String getOppositeColour() {

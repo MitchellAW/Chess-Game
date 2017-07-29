@@ -50,7 +50,9 @@ public class ChessGUI extends JFrame {
 	JMenuItem easyOption = new JMenuItem("Easy");
 	JMenuItem mediumOption = new JMenuItem("Medium");
 	JMenuItem hardOption = new JMenuItem("Hard");
-	JTextArea moveDisplay = new JTextArea(16, 32);
+	JTextArea moveDisplay = new JTextArea(14, 21);
+	JTextArea capturedBlack = new JTextArea(3, 16);
+	JTextArea capturedWhite = new JTextArea(3, 16);
 
 	public ChessGUI() {
 		frame.setJMenuBar(createMenuBar());
@@ -59,7 +61,6 @@ public class ChessGUI extends JFrame {
 		frame.setContentPane(createBoard());
 		frame.setVisible(true);
 		frame.setResizable(false);
-
 	}
 
 	public JPanel createBoard() {
@@ -68,14 +69,34 @@ public class ChessGUI extends JFrame {
 		JPanel sidePanel = new JPanel();
 
 		boardButtons = new JButton[8][8];
+		
+		JTextArea black = new JTextArea("Black", 1, 12);
+		JTextArea white = new JTextArea("\nWhite", 2, 12);
 
-		JLabel title = new JLabel("Mitch's Chess", SwingConstants.CENTER);
-		JLabel field = new JLabel("Move History", SwingConstants.CENTER);
-		title.setFont(new Font("Arial Unicode MS", Font.BOLD, 48));
-		field.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
+		black.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
+		white.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
+		
+		black.setBackground(new JPanel().getBackground());
+		black.setEditable(false);
+		white.setBackground(new JPanel().getBackground());
+		white.setEditable(false);
+
+
+		capturedBlack.setFont(new Font("Arial Unicode MS", Font.PLAIN, 24));
+		capturedBlack.setBackground(new JPanel().getBackground());
+		capturedBlack.setEditable(false);
+		capturedWhite.setFont(new Font("Arial Unicode MS", Font.PLAIN, 24));
+		capturedWhite.setBackground(new JPanel().getBackground());
+		capturedWhite.setEditable(false);
+		
+		
+		JLabel gameTitle = new JLabel("Mitch's Chess", SwingConstants.CENTER);
+		JLabel moveHistoryTitle = new JLabel("Move History", SwingConstants.CENTER);
+		gameTitle.setFont(new Font("Arial Unicode MS", Font.BOLD, 48));
+		moveHistoryTitle.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
 
 		moveDisplay.setEditable(false);
-		moveDisplay.setFont(new Font("Arial Unicode MS", Font.PLAIN, 14));
+		moveDisplay.setFont(new Font("Arial Unicode MS", Font.PLAIN, 20));
 		JScrollPane scroll = new JScrollPane(moveDisplay);
 		scroll.setVerticalScrollBarPolicy(
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -84,8 +105,12 @@ public class ChessGUI extends JFrame {
 		mainPanel.add(gameBoard, BorderLayout.WEST);
 		mainPanel.add(sidePanel, BorderLayout.CENTER);
 
-		sidePanel.add(title);
-		sidePanel.add(field);
+		sidePanel.add(gameTitle);
+		sidePanel.add(white);
+		sidePanel.add(capturedWhite);
+		sidePanel.add(black);
+		sidePanel.add(capturedBlack);
+		sidePanel.add(moveHistoryTitle);
 		sidePanel.add(scroll);
 		sidePanel.add(undo);
 		sidePanel.add(reset);
@@ -149,14 +174,11 @@ public class ChessGUI extends JFrame {
 
 		// Adding Menu Items
 		menu.add(difficulty);
-		// menu.add(undo);
-		// menu.add(reset);
 		menu.add(credits);
 		menu.add(exit);
 
 		// Adding menu to menu bar
 		menuBar.add(menu);
-		// menuBar.add(undo);
 
 		return menuBar;
 	}
@@ -218,10 +240,62 @@ public class ChessGUI extends JFrame {
 			} else {
 				captured = "x";
 			}
-			moveDisplay.append(((i + 1) + ". "
+			moveDisplay.append((" " + (i + 1) + "."
 					+ moveHistory.get(i)[0].toString() + captured
 					+ moveHistory.get(i)[3].toString() + "\n"));
 		}
+	}
+	
+	public void updateCaptured() {
+		int[] whiteCount = board.countPieces("White");
+		int[] blackCount = board.countPieces("Black");
+				
+		capturedWhite.setText("");
+		capturedBlack.setText("");
+		
+		String capText = "";
+		for (int i = 0; i < 8 - whiteCount[0]; i++) {
+			capText += "♙";
+		}
+		capText += "\n";
+		for (int i = 0; i < 2 - whiteCount[1]; i++) {
+			capText += "♖";
+		}
+		for (int i = 0; i < 2 - whiteCount[2]; i++) {
+			capText += "♘";
+		}
+		for (int i = 0; i < 2 - whiteCount[3]; i++) {
+			capText += "♗";
+		}
+		for (int i = 0; i < 1 - whiteCount[4]; i++) {
+			capText += "♕";
+		}
+		for (int i = 0; i < 1 - whiteCount[5]; i++) {
+			capText += "♔";
+		}
+		capturedWhite.setText(capText);
+		
+		capText = "";
+		for (int i = 0; i < 8 - blackCount[0]; i++) {
+			capText += "♟";
+		}
+		capText += "\n";
+		for (int i = 0; i < 2 - blackCount[1]; i++) {
+			capText += "♜";
+		}
+		for (int i = 0; i < 2 - blackCount[2]; i++) {
+			capText += "♞";
+		}
+		for (int i = 0; i < 2 - blackCount[3]; i++) {
+			capText += "♝";
+		}
+		for (int i = 0; i < 1 - blackCount[4]; i++) {
+			capText += "♛";
+		}
+		for (int i = 0; i < 1 - blackCount[5]; i++) {
+			capText += "♚";
+		}
+		capturedBlack.setText(capText);
 	}
 
 	// Computer will make it's move
@@ -309,6 +383,7 @@ public class ChessGUI extends JFrame {
 							if (board.isCheck("White") == false) {
 								resetColours();
 								updateMoveHistory();
+								updateCaptured();
 								updatePieces();
 								moves++;
 
@@ -325,6 +400,7 @@ public class ChessGUI extends JFrame {
 
 				}
 			}
+			updateCaptured();
 			updateMoveHistory();
 			updatePieces();
 		}

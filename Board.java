@@ -209,13 +209,14 @@ public class Board {
 			newPiece(from, piecePreMove);
 			newPiece(to, pieceAtMove);
 
+			// Remove the last move from the history
 			this.moveHistory.remove(moveHistory.size() - 1);
 		}
 	}
 
 	public int[] countPieces(String colour) {
 
-		// # Of Pawns, Rooks, Knights, Bishops, Queens and Kings
+		// Number Of Pawns, Rooks, Knights, Bishops, Queens and Kings
 		int[] pieceCounts = { 0, 0, 0, 0, 0, 0 };
 
 		for (int i = 0; i < 8; i++) {

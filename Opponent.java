@@ -11,7 +11,6 @@ public class Opponent {
 	}
 
 	public Position[] getMove(Board board) {
-
 		Position[] bestMove = new Position[2];
 		List<List<Position>> allMoves = board.getAllLegalMoves(this.colour);
 
@@ -58,13 +57,17 @@ public class Opponent {
 		if (highestValue > 0) {
 			return bestMove;
 		}
+		
+		int size = allMoves.get(0).size();
 
-		// Make a random move
-		int choice = rand.nextInt(allMoves.get(0).size());
-
-		bestMove[0] = allMoves.get(0).get(choice);
-		bestMove[1] = allMoves.get(1).get(choice);
-
+		
+		if (size > 0) {
+			// Make a random move
+			int choice = rand.nextInt(size);
+	
+			bestMove[0] = allMoves.get(0).get(choice);
+			bestMove[1] = allMoves.get(1).get(choice);
+		}
 		return bestMove;
 	}
 

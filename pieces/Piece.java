@@ -1,4 +1,5 @@
 package pieces;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ public abstract class Piece {
 
 	private String colour;
 	private Position position;
+	private boolean moved = false;
 
 	private int value;
 
@@ -49,28 +51,44 @@ public abstract class Piece {
 		return this.value;
 	}
 
+	public boolean hasMoved() {
+		return this.moved;
+	}
+
+	public void setMoved(boolean moved) {
+		this.moved = moved;
+	}
+
 	public boolean canMove(Board board) {
 		return (getMoves(board).size() > 0);
 	}
 
 	// Gets all the moves that piece can make given the current board
 	public List<Move> getMoves(Board board) {
+		// List of possible moves of piece
 		List<Move> moves = new ArrayList<Move>();
-		Position curr = this.getPosition();
+		
+		// Get the starting position and directions of the piece
+		Position startPos = this.getPosition();
+		int[] directions = this.getDirections();
 
-		for (int i = 0; i < this.getDirections().length; i++) {
+		// Loop through all the directions + distances
+		for (int i = 0; i < directions.length; i++) {
 			for (int j = 1; j <= this.getMaxDistance(); j++) {
-				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
-					Piece pieceAt = board.getPieceAt(curr.positionAt(this.getDirections()[i], j));
+				// Check if the movement position is valid
+				Position endPos = startPos.positionAt(directions[i], j);
+				if (endPos.isValid()) {
+					
+					Piece pieceAt = board.getPieceAt(endPos);
 					if (pieceAt != null) {
 						if (pieceAt.getColour() != this.getColour()) {
-							moves.add(new Move(board, curr, curr.positionAt(this.getDirections()[i],
-									j)));
+							moves.add(new Move(board, startPos, endPos));
 							break;
 						} else {
 							break;
-
 						}
+					} else {
+						moves.add(new Move(board, startPos, endPos));
 					}
 				}
 			}

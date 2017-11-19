@@ -242,7 +242,7 @@ public class Board {
 			// Get the last move performed
 			Move lastMove = this.moveHistory.get(moveHistory.size() - 1);
 
-			// Get the pieces at the start and end positions of the last move
+			// Get the pieces moved and taken
 			Piece pieceMoved = lastMove.getPieceMoved();
 			Piece pieceTaken = lastMove.getPieceTaken();
 
@@ -292,6 +292,9 @@ public class Board {
 	}
 
 	public void move(Move move) {
+		if (move.getPieceMoved() != null) {
+			move.getPieceMoved().setMoved(true);
+		}
 		newPiece(move.getStartPosition(), null);
 		newPiece(move.getEndPosition(), move.getPieceMoved());
 

@@ -3,8 +3,8 @@ import java.util.Random;
 
 public class Opponent {
 
-	Random rand = new Random();
-	String colour;
+	private Random rand = new Random();
+	private String colour;
 
 	public Opponent(String colour) {
 		this.colour = colour;
@@ -69,6 +69,10 @@ public class Opponent {
 			bestMove[1] = allMoves.get(1).get(choice);
 		}
 		return bestMove;
+	}
+	
+	public String getColour() {
+		return this.colour;
 	}
 
 	public String getOppositeColour() {

@@ -46,6 +46,7 @@ public abstract class Piece {
 	public List<Position> getMoves(Board board) {
 		List<Position> moves = new ArrayList<Position>();
 		Position curr = this.getPosition();
+
 		for (int i = 0; i < this.getDirections().length; i++) {
 			for (int j = 1; j <= this.getMaxDistance(); j++) {
 				if (curr.positionAt(this.getDirections()[i], j).isValid()) {

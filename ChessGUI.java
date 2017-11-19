@@ -23,7 +23,6 @@ import javax.swing.SwingConstants;
 public class ChessGUI extends JFrame {
 
 	private static final long serialVersionUID = 7731593523032576580L;
-
 	int moves = 0;
 
 	Board board = new Board();
@@ -69,18 +68,17 @@ public class ChessGUI extends JFrame {
 		JPanel sidePanel = new JPanel();
 
 		boardButtons = new JButton[8][8];
-		
+
 		JTextArea black = new JTextArea("Black", 1, 12);
 		JTextArea white = new JTextArea("\nWhite", 2, 12);
 
 		black.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
 		white.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
-		
+
 		black.setBackground(new JPanel().getBackground());
 		black.setEditable(false);
 		white.setBackground(new JPanel().getBackground());
 		white.setEditable(false);
-
 
 		capturedBlack.setFont(new Font("Arial Unicode MS", Font.PLAIN, 24));
 		capturedBlack.setBackground(new JPanel().getBackground());
@@ -88,10 +86,10 @@ public class ChessGUI extends JFrame {
 		capturedWhite.setFont(new Font("Arial Unicode MS", Font.PLAIN, 24));
 		capturedWhite.setBackground(new JPanel().getBackground());
 		capturedWhite.setEditable(false);
-		
-		
+
 		JLabel gameTitle = new JLabel("Mitch's Chess", SwingConstants.CENTER);
-		JLabel moveHistoryTitle = new JLabel("Move History", SwingConstants.CENTER);
+		JLabel moveHistoryTitle = new JLabel("Move History",
+				SwingConstants.CENTER);
 		gameTitle.setFont(new Font("Arial Unicode MS", Font.BOLD, 48));
 		moveHistoryTitle.setFont(new Font("Arial Unicode MS", Font.BOLD, 32));
 
@@ -121,33 +119,38 @@ public class ChessGUI extends JFrame {
 		undo.addActionListener(new MyActionListener());
 
 		// Initialise all the buttons
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				boardButtons[i][j] = new JButton();
-				boardButtons[i][j].setVisible(true);
+		for (int row = 0; row < Board.ROWS; row++) {
+			for (int col = 0; col < Board.COLS; col++) {
+				boardButtons[row][col] = new JButton();
+				boardButtons[row][col].setVisible(true);
 
-				if (i % 2 == 0) {
-					if (j % 2 != 0) {
-						boardButtons[i][j].setBackground(darkBg);
+				JButton currentButton = boardButtons[row][col];
+
+				// Set the colours of the board
+				if (row % 2 == 0) {
+					if (col % 2 != 0) {
+						currentButton.setBackground(darkBg);
 					} else {
-						boardButtons[i][j].setBackground(lightBg);
+						currentButton.setBackground(lightBg);
 					}
+				} else if (col % 2 != 0) {
+					currentButton.setBackground(lightBg);
 				} else {
-					if (j % 2 != 0) {
-						boardButtons[i][j].setBackground(lightBg);
-					} else {
-						boardButtons[i][j].setBackground(darkBg);
-					}
+					currentButton.setBackground(darkBg);
 				}
 
-				boardButtons[i][j].setForeground(Color.BLACK);
-				boardButtons[i][j].setText((board.getPieceAt(i, j).toString()));
-				boardButtons[i][j].setFont(arialMS);
+				// Draw the pieces on the board
+				currentButton.setForeground(Color.BLACK);
+				String pieceText = board.getPieceAt(row, col).toString();
+				currentButton.setText(pieceText);
+				currentButton.setFont(arialMS);
 
-				gameBoard.add(boardButtons[i][j]);
-				boardButtons[i][j].addActionListener(new MyActionListener());
+				gameBoard.add(boardButtons[row][col]);
+				currentButton.addActionListener(new MyActionListener());
 			}
 		}
+		updateCaptured();
+
 		return mainPanel;
 	}
 
@@ -185,31 +188,31 @@ public class ChessGUI extends JFrame {
 
 	// Reset all the colours of the board
 	public void resetColours() {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				if (i % 2 == 0) {
-					if (j % 2 != 0) {
-						boardButtons[i][j].setBackground(darkBg);
+		for (int row = 0; row < Board.ROWS; row++) {
+			for (int col = 0; col < Board.COLS; col++) {
+				JButton currentButton = boardButtons[row][col];
+				if (row % 2 == 0) {
+					if (col % 2 != 0) {
+						currentButton.setBackground(darkBg);
 					} else {
-						boardButtons[i][j].setBackground(lightBg);
+						currentButton.setBackground(lightBg);
 					}
+				} else if (col % 2 != 0) {
+					currentButton.setBackground(lightBg);
 				} else {
-					if (j % 2 != 0) {
-						boardButtons[i][j].setBackground(lightBg);
-					} else {
-						boardButtons[i][j].setBackground(darkBg);
-					}
+					currentButton.setBackground(darkBg);
 				}
-				boardButtons[i][j].setForeground(Color.BLACK);
+				currentButton.setForeground(Color.BLACK);
 			}
 		}
 	}
 
 	// Update all the pieces displayed in the GUI
 	public void updatePieces() {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				boardButtons[i][j].setText(board.getPieceAt(i, j).toString());
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				JButton currentButton = boardButtons[row][col];
+				currentButton.setText(board.getPieceAt(row, col).toString());
 			}
 		}
 	}
@@ -222,9 +225,10 @@ public class ChessGUI extends JFrame {
 			for (int i = 0; i < moves.size(); i++) {
 				int[] points = moves.get(i).getIndexes();
 
-				boardButtons[points[0]][points[1]].setBackground(highlight);
-				boardButtons[points[0]][points[1]]
-						.setForeground(Color.RED.darker());
+				JButton currentButton = boardButtons[points[0]][points[1]];
+
+				currentButton.setBackground(highlight);
+				currentButton.setForeground(Color.RED.darker());
 			}
 		}
 	}
@@ -245,55 +249,43 @@ public class ChessGUI extends JFrame {
 					+ moveHistory.get(i)[3].toString() + "\n"));
 		}
 	}
-	
+
 	public void updateCaptured() {
 		int[] whiteCount = board.countPieces("White");
 		int[] blackCount = board.countPieces("Black");
-				
+
+		char[] whitePieces = { '♙', '♖', '♘', '♗', '♕', '♔' };
+		char[] blackPieces = { '♟', '♜', '♞', '♝', '♛', '♚' };
+
 		capturedWhite.setText("");
 		capturedBlack.setText("");
-		
+
+
+		// Add counts for white pieces
 		String capText = "";
-		for (int i = 0; i < 8 - whiteCount[0]; i++) {
-			capText += "♙";
-		}
-		capText += "\n";
-		for (int i = 0; i < 2 - whiteCount[1]; i++) {
-			capText += "♖";
-		}
-		for (int i = 0; i < 2 - whiteCount[2]; i++) {
-			capText += "♘";
-		}
-		for (int i = 0; i < 2 - whiteCount[3]; i++) {
-			capText += "♗";
-		}
-		for (int i = 0; i < 1 - whiteCount[4]; i++) {
-			capText += "♕";
-		}
-		for (int i = 0; i < 1 - whiteCount[5]; i++) {
-			capText += "♔";
+		for (int i = 0; i < whiteCount.length; i++) {
+			if (whiteCount[i] > 0) {
+				capText += String.format("%" + whiteCount[i] + "s", "").replace(' ',
+						whitePieces[i]);
+			}
+			
+			if (i == 0) {
+				capText += "\n";
+			}
 		}
 		capturedWhite.setText(capText);
-		
+
+		// Add counts for black pieces
 		capText = "";
-		for (int i = 0; i < 8 - blackCount[0]; i++) {
-			capText += "♟";
-		}
-		capText += "\n";
-		for (int i = 0; i < 2 - blackCount[1]; i++) {
-			capText += "♜";
-		}
-		for (int i = 0; i < 2 - blackCount[2]; i++) {
-			capText += "♞";
-		}
-		for (int i = 0; i < 2 - blackCount[3]; i++) {
-			capText += "♝";
-		}
-		for (int i = 0; i < 1 - blackCount[4]; i++) {
-			capText += "♛";
-		}
-		for (int i = 0; i < 1 - blackCount[5]; i++) {
-			capText += "♚";
+		for (int i = 0; i < blackCount.length; i++) {
+			if (blackCount[i] > 0) {
+				capText += String.format("%" + blackCount[i] + "s", "").replace(' ',
+						blackPieces[i]);
+			}
+
+			if (i == 0) {
+				capText += "\n";
+			}
 		}
 		capturedBlack.setText(capText);
 	}
@@ -324,6 +316,10 @@ public class ChessGUI extends JFrame {
 				JOptionPane.showMessageDialog(frame, "You are in check.",
 						"Check", JOptionPane.INFORMATION_MESSAGE);
 
+			} else if (board.isStalemate("White")) {
+				JOptionPane.showMessageDialog(frame,
+						"You are in a stalemate. You win.", "Stalemate",
+						JOptionPane.INFORMATION_MESSAGE);
 			}
 		} else {
 			JOptionPane.showMessageDialog(frame, "Checkmate. You Win.",
@@ -332,6 +328,7 @@ public class ChessGUI extends JFrame {
 	}
 
 	public class MyActionListener implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == reset) {
 				board.reset();
@@ -353,18 +350,20 @@ public class ChessGUI extends JFrame {
 			if (e.getSource() == exit) {
 				System.exit(0);
 			}
-			for (int i = 0; i < 8; i++) {
-				for (int j = 0; j < 8; j++) {
+			for (int row = 0; row < Board.ROWS; row++) {
+				for (int col = 0; col < Board.COLS; col++) {
+					JButton currentButton = boardButtons[row][col];
+					Position currentPos = new Position(row, col);
+					Object currentPiece = board.getPieceAt(row, col);
+
 					// Show the available moves if white piece is clicked
-					if (e.getSource() == boardButtons[i][j]
-							&& boardButtons[i][j]
-									.getBackground() != highlight) {
+					if (e.getSource() == currentButton
+							&& currentButton.getBackground() != highlight) {
 
 						// Highlight available moves and set the piece position
-						if (board.getColourAt(new Position(i, j)) == "White") {
+						if (board.getColourAt(currentPos) == "White") {
 							resetColours();
-							pos = ((Piece) board.getPieceAt(i, j))
-									.getPosition();
+							pos = ((Piece) currentPiece).getPosition();
 							showMoves(pos);
 
 							// If a white piece isn't clicked, clear the
@@ -373,13 +372,12 @@ public class ChessGUI extends JFrame {
 							resetColours();
 						}
 						// Player's move
-					} else if (e.getSource() == boardButtons[i][j]
-							&& moves % 2 == 0
+					} else if (e.getSource() == currentButton && moves % 2 == 0
 							&& board.getColourAt(pos) == "White") {
 
 						if (board.isCheckmate("White") == false) {
 							// Move to the selected position
-							board.move(pos, new Position(i, j));
+							board.move(pos, currentPos);
 							if (board.isCheck("White") == false) {
 								resetColours();
 								updateMoveHistory();
@@ -391,10 +389,16 @@ public class ChessGUI extends JFrame {
 							} else {
 								board.undo();
 							}
-						} else {
+						} else if (board.isCheckmate("White") == true) {
 							JOptionPane.showMessageDialog(frame,
 									"Checkmate. You Lose.", "Checkmate",
 									JOptionPane.INFORMATION_MESSAGE);
+						} else if (board.isStalemate("Black")) {
+							JOptionPane.showMessageDialog(frame,
+									"You are in a stalemate. You lose.",
+									"Stalemate",
+									JOptionPane.INFORMATION_MESSAGE);
+
 						}
 					}
 

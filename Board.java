@@ -3,51 +3,53 @@ import java.util.List;
 
 public class Board {
 
-	private Object[][] board = new Object[8][8];
+	public static final int ROWS = 8;
+	public static final int COLS = 8;
+	private Object[][] board = new Object[ROWS][COLS];
 	private List<Object[]> moveHistory = new ArrayList<Object[]>();
 
 	public Board() {
-		reset();
-	}
-
-	// Resets the board with pieces in starting positions
-	public void reset() {
 		// Reset Move History
 		moveHistory = new ArrayList<Object[]>();
 
-		// Setup Pawns
-		for (int i = 0; i < 8; i++) {
-			this.board[1][i] = new Pawn(new Position((char) (i + 97), 7),
-					"Black");
-			this.board[2][i] = "";
-			this.board[3][i] = "";
-			this.board[4][i] = "";
-			this.board[5][i] = "";
-			this.board[6][i] = new Pawn(new Position((char) (i + 97), 2),
-					"White");
+		// Insert all pawns into the board
+		for (int col = 0; col < this.board.length; col++) {
+			char posChar = (char) (col + 97);
+			this.board[1][col] = new Pawn(new Position(posChar, 7), "Black");
+			this.board[2][col] = "";
+			this.board[3][col] = "";
+			this.board[4][col] = "";
+			this.board[5][col] = "";
+			this.board[6][col] = new Pawn(new Position(posChar, 2), "White");
 		}
 		// Setup higher ranked pieces for black side, then white side
-		String currentColour = "Black";
+		String colour = "Black";
 		for (int i = 0; i < 2; i++) {
 			if (i != 0) {
-				currentColour = "White";
+				colour = "White";
 			}
-			this.board[7 * i][0] = new Rook(new Position('a', 8 - (7 * i)),
-					currentColour);
-			this.board[7 * i][1] = new Knight(new Position('b', 8 - (7 * i)),
-					currentColour);
-			this.board[7 * i][2] = new Bishop(new Position('c', 8 - (7 * i)),
-					currentColour);
-			this.board[7 * i][3] = new Queen(new Position('d', 8 - (7 * i)),
-					currentColour);
-			this.board[7 * i][4] = new King(new Position('e', 8 - (7 * i)),
-					currentColour);
-			this.board[7 * i][5] = new Bishop(new Position('f', 8 - (7 * i)),
-					currentColour);
-			this.board[7 * i][6] = new Knight(new Position('g', 8 - (7 * i)),
-					currentColour);
-			this.board[7 * i][7] = new Rook(new Position('h', 8 - (7 * i)),
-					currentColour);
+			// Row number of piece
+			int row = 7 * i;
+
+			// Calculator Number Position for piece
+			int pos = 8 - row;
+
+			// Place all major pieces in correct positions
+			this.board[row][0] = new Rook(new Position('a', pos), colour);
+			this.board[row][1] = new Knight(new Position('b', pos), colour);
+			this.board[row][2] = new Bishop(new Position('c', pos), colour);
+			this.board[row][3] = new Queen(new Position('d', pos), colour);
+			this.board[row][4] = new King(new Position('e', pos), colour);
+			this.board[row][5] = new Bishop(new Position('f', pos), colour);
+			this.board[row][6] = new Knight(new Position('g', pos), colour);
+			this.board[row][7] = new Rook(new Position('h', pos), colour);
+		}
+	}
+
+	// Undo all moves that have been made
+	public void reset() {
+		while (this.moveHistory.size() > 0) {
+			undo();
 		}
 	}
 
@@ -59,13 +61,12 @@ public class Board {
 	public boolean isValid(Piece piece, Position position) {
 		if (position.isValid() == false) {
 			return false;
-		} else {
-			if (getPieceAt(position) instanceof Piece) {
-				if (((Piece) getPieceAt(position)).getColour() == piece
-						.getColour()) {
-					return false;
-				}
+		} else if (getPieceAt(position) instanceof Piece) {
+			if (((Piece) getPieceAt(position)).getColour() == piece
+					.getColour()) {
+				return false;
 			}
+
 		}
 		return true;
 	}
@@ -105,16 +106,15 @@ public class Board {
 
 	// Will return true if colour is currently in check
 	public boolean isCheck(String colour) {
-		String oppColour;
+		String oppColour = "Black";
 		if (colour.equals("Black")) {
 			oppColour = "White";
-		} else {
-			oppColour = "Black";
 		}
 
+		// Loop through opponents moves
 		List<List<Position>> oppMoves = getAllMoves(oppColour);
-
 		for (int i = 0; i < oppMoves.get(1).size(); i++) {
+			// Check if king is in path of move
 			if (getPieceAt(oppMoves.get(1).get(i)) instanceof King) {
 				if (((King) getPieceAt(oppMoves.get(1).get(i))).getColour()
 						.equals(colour)) {
@@ -145,13 +145,36 @@ public class Board {
 		return true;
 	}
 
+	// Determine if side is currently in stalemate where the player whose turn
+	// it is to move is not in check but has no legal move.
+	public boolean isStalemate(String colour) {
+		List<List<Position>> moves = getAllMoves(colour);
+
+		// Player must not be in check in order to be in a stalemate
+		if (isCheck(colour) == false) {
+			// Check if any moves lead don't lead to check
+			for (int i = 0; i < moves.get(0).size(); i++) {
+				move(moves.get(0).get(i), moves.get(1).get(i));
+				if (isCheck(colour) == false) {
+					undo();
+					return false;
+				}
+				undo();
+			}
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
 	// Gathers all of the possible moves that can be made by colour
 	public List<List<Position>> getAllMoves(String colour) {
 		List<Position> preMoves = new ArrayList<Position>();
 		List<Position> allMoves = new ArrayList<Position>();
 
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
+		for (int i = 0; i < this.board.length; i++) {
+			for (int j = 0; j < this.board[i].length; j++) {
 				if (getPieceAt(i, j) instanceof Piece) {
 					if (((Piece) getPieceAt(i, j)).getColour() == colour) {
 						List<Position> moves = ((Piece) getPieceAt(i, j))
@@ -192,22 +215,24 @@ public class Board {
 		return movements;
 	}
 
-	// Undoes the changes made by the last move, using the moves array
+	// Undoes the changes made by the last move, using the moveHistory list
 	public void undo() {
 		if (this.moveHistory.size() > 0) {
-			// Undo the last move
-			Object piecePreMove = this.moveHistory
-					.get(moveHistory.size() - 1)[0];
-			Object pieceAtMove = this.moveHistory
-					.get(moveHistory.size() - 1)[1];
 
-			Position from = (Position) this.moveHistory
-					.get(moveHistory.size() - 1)[2];
-			Position to = (Position) this.moveHistory
-					.get(moveHistory.size() - 1)[3];
+			// Get the last move performed
+			Object[] lastMove = this.moveHistory.get(moveHistory.size() - 1);
 
-			newPiece(from, piecePreMove);
-			newPiece(to, pieceAtMove);
+			// Get the pieces at the start and end positions of the last move
+			Object pieceBeforeMove = lastMove[0];
+			Object pieceAfterMove = lastMove[1];
+
+			// Get the positions the piece moved to and from
+			Position from = (Position) lastMove[2];
+			Position to = (Position) lastMove[3];
+
+			// Undo the move
+			newPiece(from, pieceBeforeMove);
+			newPiece(to, pieceAfterMove);
 
 			// Remove the last move from the history
 			this.moveHistory.remove(moveHistory.size() - 1);
@@ -219,8 +244,8 @@ public class Board {
 		// Number Of Pawns, Rooks, Knights, Bishops, Queens and Kings
 		int[] pieceCounts = { 0, 0, 0, 0, 0, 0 };
 
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
+		for (int i = 0; i < this.board.length; i++) {
+			for (int j = 0; j < this.board[i].length; j++) {
 				if (getColourAt(new Position(i, j)).equals(colour)) {
 					if (this.board[i][j] instanceof Pawn) {
 						pieceCounts[0]++;
@@ -243,23 +268,24 @@ public class Board {
 
 	// Makes the move and stores its history in moves
 	public void move(Position from, Position to) {
-		Object piecePreMove = getPieceAt(from);
-		Object pieceAtMove = getPieceAt(to);
+		// Get the pieces at the to and from positions
+		Object pieceBeforeMove = getPieceAt(from);
+		Object pieceAfterMove = getPieceAt(to);
 		newPiece(from, "");
-		newPiece(to, piecePreMove);
+		newPiece(to, pieceBeforeMove);
 
-		Object[] piecesMoved = { piecePreMove, pieceAtMove, from, to };
+		Object[] piecesMoved = { pieceBeforeMove, pieceAfterMove, from, to };
 		this.moveHistory.add(piecesMoved);
 	}
 
 	// Board as a string
 	public String toString() {
 		String boardString = "";
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
+		for (int i = 0; i < this.board.length; i++) {
+			for (int j = 0; j < this.board[i].length; j++) {
 				boardString += "|" + board[i][j] + "";
 			}
-			if (i != 8 - 1) {
+			if (i != this.board.length - 1) {
 				boardString += "|\n";
 			} else {
 				boardString += "|";

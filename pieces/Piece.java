@@ -1,5 +1,10 @@
+package pieces;
 import java.util.ArrayList;
 import java.util.List;
+
+import game.Board;
+import game.Move;
+import game.Position;
 
 public abstract class Piece {
 
@@ -12,6 +17,12 @@ public abstract class Piece {
 		this.position = position;
 		this.colour = colour;
 		this.value = value;
+	}
+
+	public Piece(Piece other) {
+		this.position = other.position;
+		this.colour = other.colour;
+		this.value = other.value;
 	}
 
 	public Position getPosition() {
@@ -43,25 +54,23 @@ public abstract class Piece {
 	}
 
 	// Gets all the moves that piece can make given the current board
-	public List<Position> getMoves(Board board) {
-		List<Position> moves = new ArrayList<Position>();
+	public List<Move> getMoves(Board board) {
+		List<Move> moves = new ArrayList<Move>();
 		Position curr = this.getPosition();
 
 		for (int i = 0; i < this.getDirections().length; i++) {
 			for (int j = 1; j <= this.getMaxDistance(); j++) {
 				if (curr.positionAt(this.getDirections()[i], j).isValid()) {
-					Object pieceAt = board.getPieceAt(
-							curr.positionAt(this.getDirections()[i], j));
-					if (pieceAt instanceof Piece) {
-						if (((Piece) pieceAt).getColour() != this.getColour()) {
-							moves.add(curr.positionAt(this.getDirections()[i],
-									j));
+					Piece pieceAt = board.getPieceAt(curr.positionAt(this.getDirections()[i], j));
+					if (pieceAt != null) {
+						if (pieceAt.getColour() != this.getColour()) {
+							moves.add(new Move(board, curr, curr.positionAt(this.getDirections()[i],
+									j)));
 							break;
 						} else {
 							break;
+
 						}
-					} else {
-						moves.add(curr.positionAt(this.getDirections()[i], j));
 					}
 				}
 			}
@@ -72,4 +81,6 @@ public abstract class Piece {
 	public abstract int getMaxDistance();
 
 	public abstract int[] getDirections();
+
+	public abstract Piece copy();
 }

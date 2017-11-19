@@ -1,3 +1,4 @@
+package game;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,6 +20,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+
+import pieces.Piece;
 
 public class ChessGUI extends JFrame {
 
@@ -144,7 +147,14 @@ public class ChessGUI extends JFrame {
 
 				// Draw the pieces on the board
 				currentButton.setForeground(Color.BLACK);
-				String pieceText = board.getPieceAt(row, col).toString();
+				Piece currentPiece = board.getPieceAt(row, col);
+				String pieceText;
+				if (currentPiece != null) {
+					pieceText = currentPiece.toString();
+
+				} else {
+					pieceText = "";
+				}
 				currentButton.setText(pieceText);
 				currentButton.setFont(arialMS);
 
@@ -225,7 +235,12 @@ public class ChessGUI extends JFrame {
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 				JButton currentButton = boardButtons[row][col];
-				currentButton.setText(board.getPieceAt(row, col).toString());
+				Piece currentPiece = board.getPieceAt(row, col);
+				if (currentPiece != null) {
+					currentButton.setText(board.getPieceAt(row, col).toString());
+				} else {
+					currentButton.setText("");
+				}
 			}
 		}
 	}
@@ -234,9 +249,9 @@ public class ChessGUI extends JFrame {
 	public void showMoves(Position position) {
 		if (board.getPieceAt(position) instanceof Piece) {
 			Piece piece = ((Piece) board.getPieceAt(position));
-			List<Position> moves = piece.getMoves(board);
+			List<Move> moves = piece.getMoves(board);
 			for (int i = 0; i < moves.size(); i++) {
-				int[] points = moves.get(i).getIndexes();
+				int[] points = moves.get(i).getEndPosition().getIndexes();
 
 				JButton currentButton = boardButtons[points[0]][points[1]];
 
@@ -247,19 +262,27 @@ public class ChessGUI extends JFrame {
 	}
 
 	public void updateMoveHistory() {
-		List<Object[]> moveHistory = board.getMoveHistory();
+		List<Move> moveHistory = board.getMoveHistory();
 		String captured;
 		moveDisplay.setText("");
 
 		for (int i = 0; i < moveHistory.size(); i++) {
-			if (moveHistory.get(i)[1].equals("")) {
+			if (moveHistory.get(i).getPieceTaken() == null) {
 				captured = "";
 			} else {
 				captured = "x";
 			}
+			
+			Piece pieceMoved = moveHistory.get(i).getPieceMoved();
+			String movedString;
+			if (pieceMoved != null) {
+				movedString = moveHistory.get(i).getPieceMoved().toString();
+			} else {
+				movedString = "";
+			}
 			moveDisplay.append((" " + (i + 1) + "."
-					+ moveHistory.get(i)[0].toString() + captured
-					+ moveHistory.get(i)[3].toString() + "\n"));
+					+ movedString + captured
+					+ moveHistory.get(i).getEndPosition().toString() + "\n"));
 		}
 	}
 
@@ -306,18 +329,18 @@ public class ChessGUI extends JFrame {
 	public void computerMove() {
 		// Make computer's move
 		if (board.isCheckmate("Black") == false) {
-			Position[] computerMove = computer.getMove(board);
+			Move computerMove = computer.getMove(board.copy());
 			int[] move;
 
-			board.move(computerMove[0], computerMove[1]);
+			board.move(computerMove);
 			updatePieces();
 			updateMoveHistory();
 
 			// Highlight opponent's move for clarity
-			move = computerMove[1].getIndexes();
+			move = computerMove.getStartPosition().getIndexes();
 			boardButtons[move[0]][move[1]].setForeground(Color.RED.darker());
 
-			move = computerMove[0].getIndexes();
+			move = computerMove.getEndPosition().getIndexes();
 			boardButtons[move[0]][move[1]].setBackground(highlightDark);
 			moves++;
 

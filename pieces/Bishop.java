@@ -1,3 +1,5 @@
+package pieces;
+import game.Position;
 
 public class Bishop extends Piece {
 	private int[] directions = { 2, 4, 6, 8 };
@@ -5,6 +7,10 @@ public class Bishop extends Piece {
 
 	public Bishop(Position position, String colour) {
 		super(position, colour, 3);
+	}
+	
+	public Bishop(Bishop other) {
+		super(other);
 	}
 
 	public int[] getDirections() {
@@ -21,5 +27,10 @@ public class Bishop extends Piece {
 		} else {
 			return "♝";
 		}
+	}
+
+	@Override
+	public Piece copy() {
+		return new Bishop(this);
 	}
 }

@@ -1,3 +1,5 @@
+package pieces;
+import game.Position;
 
 public class Queen extends Piece {
 	private int[] directions = { 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -5,6 +7,10 @@ public class Queen extends Piece {
 
 	public Queen(Position position, String colour) {
 		super(position, colour, 10);
+	}
+	
+	public Queen(Queen other) {
+		super(other);
 	}
 
 	public int[] getDirections() {
@@ -22,4 +28,11 @@ public class Queen extends Piece {
 			return "♛";
 		}
 	}
+
+	@Override
+	public Piece copy() {
+		return new Queen(this);
+	}
+	
+	
 }

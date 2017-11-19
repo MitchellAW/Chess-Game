@@ -1,5 +1,10 @@
+package pieces;
 import java.util.ArrayList;
 import java.util.List;
+
+import game.Board;
+import game.Move;
+import game.Position;
 
 public class Knight extends Piece {
 	private int[] directions = { 8, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -8,10 +13,14 @@ public class Knight extends Piece {
 	public Knight(Position position, String colour) {
 		super(position, colour, 3);
 	}
+	
+	public Knight(Knight other) {
+		super(other);
+	}
 
 	// Get all possible (valid) moves
-	public List<Position> getMoves(Board board) {
-		List<Position> moves = new ArrayList<Position>();
+	public List<Move> getMoves(Board board) {
+		List<Move> moves = new ArrayList<Move>();
 		Position curr = this.getPosition();
 
 		for (int i = 1; i < directions.length; i += 2) {
@@ -23,10 +32,10 @@ public class Knight extends Piece {
 					Object pieceAt = board.getPieceAt(newPos2);
 					if (pieceAt instanceof Piece) {
 						if (((Piece) pieceAt).getColour() != this.getColour()) {
-							moves.add(newPos2);
+							moves.add(new Move(board, curr, newPos2));
 						}
 					} else {
-						moves.add(newPos2);
+						moves.add(new Move(board, curr, newPos2));
 					}
 				}
 			}
@@ -48,5 +57,10 @@ public class Knight extends Piece {
 		} else {
 			return "♞";
 		}
+	}
+
+	@Override
+	public Piece copy() {
+		return new Knight(this);
 	}
 }

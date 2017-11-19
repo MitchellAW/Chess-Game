@@ -1,5 +1,10 @@
+package pieces;
 import java.util.ArrayList;
 import java.util.List;
+
+import game.Board;
+import game.Move;
+import game.Position;
 
 public class Pawn extends Piece {
 	private int[] directions = new int[3];
@@ -19,10 +24,15 @@ public class Pawn extends Piece {
 			this.directions[2] = 6;
 		}
 	}
+	
+	public Pawn(Pawn other) {
+		super(other);
+		this.directions = other.directions;
+	}
 
 	// Get all possible (valid) moves
-	public List<Position> getMoves(Board board) {
-		List<Position> moves = new ArrayList<Position>();
+	public List<Move> getMoves(Board board) {
+		List<Move> moves = new ArrayList<Move>();
 		Position curr = this.getPosition();
 
 		for (int i = 0; i < directions.length; i++) {
@@ -32,7 +42,7 @@ public class Pawn extends Piece {
 							.getPieceAt(curr.positionAt(directions[i], 1));
 					if (pieceAt instanceof Piece) {
 						if (((Piece) pieceAt).getColour() != this.getColour()) {
-							moves.add(curr.positionAt(directions[i], 1));
+							moves.add(new Move(board, curr, curr.positionAt(directions[i], 1)));
 						}
 					}
 				}
@@ -44,7 +54,7 @@ public class Pawn extends Piece {
 						if (pieceAt instanceof Piece) {
 							break;
 						} else {
-							moves.add(curr.positionAt(directions[i], j));
+							moves.add(new Move(board, curr, curr.positionAt(directions[i], j)));
 						}
 					}
 				}
@@ -96,5 +106,10 @@ public class Pawn extends Piece {
 		} else {
 			return "♟";
 		}
+	}
+
+	@Override
+	public Piece copy() {
+		return new Pawn(this);
 	}
 }

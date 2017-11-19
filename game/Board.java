@@ -1,25 +1,32 @@
+package game;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import pieces.Bishop;
+import pieces.King;
+import pieces.Knight;
+import pieces.Pawn;
+import pieces.Piece;
+import pieces.Queen;
+import pieces.Rook;
 
 public class Board {
 
 	public static final int ROWS = 8;
 	public static final int COLS = 8;
-	private Object[][] board = new Object[ROWS][COLS];
-	private List<Object[]> moveHistory = new ArrayList<Object[]>();
+	private Piece[][] board = new Piece[ROWS][COLS];
+	private List<Move> moveHistory = new ArrayList<Move>();
+	private String currentPlayer = "Black";
 
 	public Board() {
 		// Reset Move History
-		moveHistory = new ArrayList<Object[]>();
+		moveHistory = new ArrayList<Move>();
 
 		// Insert all pawns into the board
 		for (int col = 0; col < this.board.length; col++) {
 			char posChar = (char) (col + 97);
 			this.board[1][col] = new Pawn(new Position(posChar, 7), "Black");
-			this.board[2][col] = "";
-			this.board[3][col] = "";
-			this.board[4][col] = "";
-			this.board[5][col] = "";
 			this.board[6][col] = new Pawn(new Position(posChar, 2), "White");
 		}
 		// Setup higher ranked pieces for black side, then white side
@@ -46,6 +53,20 @@ public class Board {
 		}
 	}
 
+	public Board(Board other) {
+		for (int row = 0; row < other.board.length; row++) {
+			for (int col = 0; col < other.board[row].length; col++) {
+				if (other.board[row][col] != null
+						&& other.board[row][col].equals("")) {
+					// this.board[row][col] = "";
+				} else if (other.board[row][col] instanceof Piece) {
+					this.board[row][col] = ((Piece) other.board[row][col])
+							.copy();
+				}
+			}
+		}
+	}
+
 	// Undo all moves that have been made
 	public void reset() {
 		while (this.moveHistory.size() > 0) {
@@ -53,7 +74,7 @@ public class Board {
 		}
 	}
 
-	public List<Object[]> getMoveHistory() {
+	public List<Move> getMoveHistory() {
 		return this.moveHistory;
 	}
 
@@ -81,9 +102,9 @@ public class Board {
 	}
 
 	// Will return object at position using position
-	public Object getPieceAt(Position position) {
-		if (position.isValid() == false) {
-			return "n/a";
+	public Piece getPieceAt(Position position) {
+		if (!position.isValid()) {
+			return null;
 		} else {
 			int[] points = position.getIndexes();
 			return this.board[points[0]][points[1]];
@@ -91,12 +112,16 @@ public class Board {
 	}
 
 	// Will return the object at position using row/column
-	public Object getPieceAt(int row, int column) {
-		return this.board[row][column];
+	public Piece getPieceAt(int row, int column) {
+		if (!new Position(row, column).isValid()) {
+			return null;
+		} else {
+			return this.board[row][column];
+		}
 	}
 
 	// Will place a new piece at position onto the board
-	public void newPiece(Position position, Object piece) {
+	public void newPiece(Position position, Piece piece) {
 		int[] points = position.getIndexes();
 		this.board[points[0]][points[1]] = piece;
 		if (piece instanceof Piece) {
@@ -112,12 +137,12 @@ public class Board {
 		}
 
 		// Loop through opponents moves
-		List<List<Position>> oppMoves = getAllMoves(oppColour);
-		for (int i = 0; i < oppMoves.get(1).size(); i++) {
+		List<Move> oppMoves = getAllMoves(oppColour);
+		for (int i = 0; i < oppMoves.size(); i++) {
 			// Check if king is in path of move
-			if (getPieceAt(oppMoves.get(1).get(i)) instanceof King) {
-				if (((King) getPieceAt(oppMoves.get(1).get(i))).getColour()
-						.equals(colour)) {
+			if (getPieceAt(oppMoves.get(i).getEndPosition()) instanceof King) {
+				if (((King) getPieceAt(oppMoves.get(i).getEndPosition()))
+						.getColour().equals(colour)) {
 					return true;
 				}
 			}
@@ -129,13 +154,13 @@ public class Board {
 	// Checks every move colour can make, if any of them can get them out of
 	// check, then they are not in checkmate
 	public boolean isCheckmate(String colour) {
-		List<List<Position>> moves = getAllMoves(colour);
+		List<Move> moves = getAllMoves(colour);
 
 		if (isCheck(colour) == false) {
 			return false;
 		}
-		for (int i = 0; i < moves.get(0).size(); i++) {
-			move(moves.get(0).get(i), moves.get(1).get(i));
+		for (int i = 0; i < moves.size(); i++) {
+			move(moves.get(i));
 			if (isCheck(colour) == false) {
 				undo();
 				return false;
@@ -148,13 +173,13 @@ public class Board {
 	// Determine if side is currently in stalemate where the player whose turn
 	// it is to move is not in check but has no legal move.
 	public boolean isStalemate(String colour) {
-		List<List<Position>> moves = getAllMoves(colour);
+		List<Move> moves = getAllMoves(colour);
 
 		// Player must not be in check in order to be in a stalemate
 		if (isCheck(colour) == false) {
 			// Check if any moves lead don't lead to check
-			for (int i = 0; i < moves.get(0).size(); i++) {
-				move(moves.get(0).get(i), moves.get(1).get(i));
+			for (int i = 0; i < moves.size(); i++) {
+				move(moves.get(i));
 				if (isCheck(colour) == false) {
 					undo();
 					return false;
@@ -168,51 +193,46 @@ public class Board {
 
 	}
 
-	// Gathers all of the possible moves that can be made by colour
-	public List<List<Position>> getAllMoves(String colour) {
-		List<Position> preMoves = new ArrayList<Position>();
-		List<Position> allMoves = new ArrayList<Position>();
+	// Determine if the game is over or not
+	public boolean isGameOver() {
+		return isCheckmate("Black") || isStalemate("Black")
+				|| isCheckmate("White") || isStalemate("Black");
+	}
 
-		for (int i = 0; i < this.board.length; i++) {
-			for (int j = 0; j < this.board[i].length; j++) {
-				if (getPieceAt(i, j) instanceof Piece) {
-					if (((Piece) getPieceAt(i, j)).getColour() == colour) {
-						List<Position> moves = ((Piece) getPieceAt(i, j))
-								.getMoves(this);
-						for (int k = 0; k < moves.size(); k++) {
-							allMoves.add(moves.get(k));
-							preMoves.add(new Position(i, j));
-						}
+	// Gathers all of the possible moves that can be made by colour
+	public List<Move> getAllMoves(String colour) {
+		List<Move> allMoves = new ArrayList<Move>();
+
+		for (int row = 0; row < this.board.length; row++) {
+			for (int col = 0; col < this.board[row].length; col++) {
+				Piece currPiece = getPieceAt(row, col);
+				if (currPiece != null && currPiece.getColour() == colour) {
+					// Get all moves of current piece
+					List<Move> currentMoves = currPiece.getMoves(this);
+					for (int i = 0; i < currentMoves.size(); i++) {
+						// Add all the pieces moves
+						allMoves.add(currentMoves.get(i));
 					}
 				}
 			}
 		}
-		List<List<Position>> movements = new ArrayList<List<Position>>();
-		movements.add(preMoves);
-		movements.add(allMoves);
-
-		return movements;
+		return allMoves;
 	}
 
 	// Counts all of the possible moves that can be made by colour
-	public List<List<Position>> getAllLegalMoves(String colour) {
-		List<List<Position>> allMoves = getAllMoves(colour);
-		List<Position> preLegalMoves = new ArrayList<Position>();
-		List<Position> allLegalMoves = new ArrayList<Position>();
+	public List<Move> getAllLegalMoves(String colour) {
+		List<Move> allMoves = getAllMoves(colour);
+		List<Move> allLegalMoves = new ArrayList<Move>();
 
-		for (int i = 0; i < allMoves.get(0).size(); i++) {
-			move(allMoves.get(0).get(i), allMoves.get(1).get(i));
+		for (int i = 0; i < allMoves.size(); i++) {
+			Move currentMove = allMoves.get(i);
+			move(currentMove);
 			if (isCheck(colour) == false) {
-				preLegalMoves.add(allMoves.get(0).get(i));
-				allLegalMoves.add(allMoves.get(1).get(i));
+				allLegalMoves.add(currentMove);
 			}
 			undo();
 		}
-		List<List<Position>> movements = new ArrayList<List<Position>>();
-
-		movements.add(preLegalMoves);
-		movements.add(allLegalMoves);
-		return movements;
+		return allLegalMoves;
 	}
 
 	// Undoes the changes made by the last move, using the moveHistory list
@@ -220,19 +240,19 @@ public class Board {
 		if (this.moveHistory.size() > 0) {
 
 			// Get the last move performed
-			Object[] lastMove = this.moveHistory.get(moveHistory.size() - 1);
+			Move lastMove = this.moveHistory.get(moveHistory.size() - 1);
 
 			// Get the pieces at the start and end positions of the last move
-			Object pieceBeforeMove = lastMove[0];
-			Object pieceAfterMove = lastMove[1];
+			Piece pieceMoved = lastMove.getPieceMoved();
+			Piece pieceTaken = lastMove.getPieceTaken();
 
 			// Get the positions the piece moved to and from
-			Position from = (Position) lastMove[2];
-			Position to = (Position) lastMove[3];
+			Position startPosition = lastMove.getStartPosition();
+			Position endPosition = lastMove.getEndPosition();
 
 			// Undo the move
-			newPiece(from, pieceBeforeMove);
-			newPiece(to, pieceAfterMove);
+			newPiece(startPosition, pieceMoved);
+			newPiece(endPosition, pieceTaken);
 
 			// Remove the last move from the history
 			this.moveHistory.remove(moveHistory.size() - 1);
@@ -267,15 +287,30 @@ public class Board {
 	}
 
 	// Makes the move and stores its history in moves
-	public void move(Position from, Position to) {
-		// Get the pieces at the to and from positions
-		Object pieceBeforeMove = getPieceAt(from);
-		Object pieceAfterMove = getPieceAt(to);
-		newPiece(from, "");
-		newPiece(to, pieceBeforeMove);
+	public void move(Position start, Position end) {
+		move(new Move(this, start, end));
+	}
 
-		Object[] piecesMoved = { pieceBeforeMove, pieceAfterMove, from, to };
-		this.moveHistory.add(piecesMoved);
+	public void move(Move move) {
+		newPiece(move.getStartPosition(), null);
+		newPiece(move.getEndPosition(), move.getPieceMoved());
+
+		this.moveHistory.add(move);
+
+		if (this.currentPlayer == "White") {
+			this.currentPlayer = "Black";
+		} else {
+			this.currentPlayer = "White";
+		}
+	}
+
+	public String getCurrentPlayer() {
+		return this.currentPlayer;
+	}
+
+	// Returns the score of the board
+	public int score() {
+		return 0;
 	}
 
 	// Board as a string
@@ -292,5 +327,9 @@ public class Board {
 			}
 		}
 		return boardString;
+	}
+
+	public Board copy() {
+		return new Board(this);
 	}
 }

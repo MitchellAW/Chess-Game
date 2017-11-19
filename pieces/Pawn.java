@@ -24,7 +24,7 @@ public class Pawn extends Piece {
 			this.directions[2] = 6;
 		}
 	}
-	
+
 	public Pawn(Pawn other) {
 		super(other);
 		this.directions = other.directions;
@@ -66,24 +66,10 @@ public class Pawn extends Piece {
 
 	// Max distance of pawn is 2 if hasn't moved
 	public int getMaxDistance() {
-		if (this.getColour().equals("White")) {
-			if (this.getPosition().getRow() == 2 && this.maxDistance == 1) {
-				return 2;
-			} else if (this.getPosition().getRow() == 8) {
-				this.maxDistance = 7;
-				return this.maxDistance;
-			} else {
-				return 1;
-			}
+		if (this.getMoveCount() > 0) {
+			return 1;
 		} else {
-			if (this.getPosition().getRow() == 7 && this.maxDistance == 1) {
-				return 2;
-			} else if (this.getPosition().getRow() == 1) {
-				this.maxDistance = 7;
-				return this.maxDistance;
-			} else {
-				return 1;
-			}
+			return 2;
 		}
 	}
 

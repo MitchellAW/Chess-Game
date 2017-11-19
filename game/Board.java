@@ -155,17 +155,18 @@ public class Board {
 	// check, then they are not in checkmate
 	public boolean isCheckmate(String colour) {
 		List<Move> moves = getAllMoves(colour);
+		Board boardCopy = this.copy();
 
-		if (isCheck(colour) == false) {
+		if (boardCopy.isCheck(colour) == false) {
 			return false;
 		}
 		for (int i = 0; i < moves.size(); i++) {
-			move(moves.get(i));
-			if (isCheck(colour) == false) {
-				undo();
+			boardCopy.move(moves.get(i));
+			if (boardCopy.isCheck(colour) == false) {
+				boardCopy.undo();
 				return false;
 			}
-			undo();
+			boardCopy.undo();
 		}
 		return true;
 	}
@@ -249,7 +250,10 @@ public class Board {
 			// Get the positions the piece moved to and from
 			Position startPosition = lastMove.getStartPosition();
 			Position endPosition = lastMove.getEndPosition();
-
+			
+			// Decrement moveCount
+			pieceMoved.decrementMoveCount();
+			
 			// Undo the move
 			newPiece(startPosition, pieceMoved);
 			newPiece(endPosition, pieceTaken);
@@ -293,7 +297,7 @@ public class Board {
 
 	public void move(Move move) {
 		if (move.getPieceMoved() != null) {
-			move.getPieceMoved().setMoved(true);
+			move.getPieceMoved().incrementMoveCount();
 		}
 		newPiece(move.getStartPosition(), null);
 		newPiece(move.getEndPosition(), move.getPieceMoved());

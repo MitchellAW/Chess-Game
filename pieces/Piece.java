@@ -11,7 +11,7 @@ public abstract class Piece {
 
 	private String colour;
 	private Position position;
-	private boolean moved = false;
+	private int moveCount = 0;
 
 	private int value;
 
@@ -51,12 +51,16 @@ public abstract class Piece {
 		return this.value;
 	}
 
-	public boolean hasMoved() {
-		return this.moved;
+	public int getMoveCount() {
+		return this.moveCount;
 	}
 
-	public void setMoved(boolean moved) {
-		this.moved = moved;
+	public void incrementMoveCount() {
+		this.moveCount++;
+	}
+	
+	public void decrementMoveCount() {
+		this.moveCount--;
 	}
 
 	public boolean canMove(Board board) {

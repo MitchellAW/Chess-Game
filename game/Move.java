@@ -38,5 +38,19 @@ public class Move {
 	public Piece getPieceTaken() {
 		return this.pieceTaken;
 	}
+	
+	@Override
+	public String toString() {
+		String movementText = "";		
+		if (this.pieceMoved != null) {
+			movementText += this.pieceMoved.toString();
+		}
+		if (this.pieceTaken != null) {
+			movementText += "x";
+		}
+		movementText += this.endPosition.toString();
+		
+		return movementText;
+	}
 
 }

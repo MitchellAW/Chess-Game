@@ -1,4 +1,5 @@
 package game;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -66,7 +67,6 @@ public class ChessGUI extends JFrame {
 	JMenuItem defaultOption = new JMenuItem("Default");
 	JMenuItem whiteOption = new JMenuItem("White/Blue");
 	JMenuItem greenOption = new JMenuItem("Green/Gold");
-
 
 	JTextArea moveDisplay = new JTextArea(14, 21);
 	JTextArea capturedBlack = new JTextArea(3, 16);
@@ -237,7 +237,8 @@ public class ChessGUI extends JFrame {
 				JButton currentButton = boardButtons[row][col];
 				Piece currentPiece = board.getPieceAt(row, col);
 				if (currentPiece != null) {
-					currentButton.setText(board.getPieceAt(row, col).toString());
+					currentButton
+							.setText(board.getPieceAt(row, col).toString());
 				} else {
 					currentButton.setText("");
 				}
@@ -267,22 +268,8 @@ public class ChessGUI extends JFrame {
 		moveDisplay.setText("");
 
 		for (int i = 0; i < moveHistory.size(); i++) {
-			if (moveHistory.get(i).getPieceTaken() == null) {
-				captured = "";
-			} else {
-				captured = "x";
-			}
-			
-			Piece pieceMoved = moveHistory.get(i).getPieceMoved();
-			String movedString;
-			if (pieceMoved != null) {
-				movedString = moveHistory.get(i).getPieceMoved().toString();
-			} else {
-				movedString = "";
-			}
-			moveDisplay.append((" " + (i + 1) + "."
-					+ movedString + captured
-					+ moveHistory.get(i).getEndPosition().toString() + "\n"));
+
+			moveDisplay.append(" " + (i + 1) + "." + moveHistory.get(i) + "\n");
 		}
 	}
 

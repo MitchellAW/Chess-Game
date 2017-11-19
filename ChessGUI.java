@@ -23,13 +23,23 @@ import javax.swing.SwingConstants;
 public class ChessGUI extends JFrame {
 
 	private static final long serialVersionUID = 7731593523032576580L;
-	int moves = 0;
+	private int moves = 0;
 
 	Board board = new Board();
 
 	// Various font and colours used
-	Color darkBg = new Color(209, 139, 71);
-	Color lightBg = new Color(255, 206, 158);
+	Color defaultThemeDark = new Color(209, 139, 71);
+	Color defaultThemeLight = new Color(255, 206, 158);
+
+	Color blueThemeDark = new Color(153, 225, 229);
+	Color blueThemeLight = new Color(255, 255, 255);
+
+	Color aussieThemeDark = new Color(33, 165, 66);
+	Color aussieThemeLight = new Color(255, 205, 0);
+
+	Color darkBg = defaultThemeDark;
+	Color lightBg = defaultThemeLight;
+
 	Color highlight = new Color(255, 128, 97);
 	Color highlightDark = new Color(255, 102, 71);
 	Font arialMS = new Font("Arial Unicode MS", Font.BOLD, 64);
@@ -49,6 +59,12 @@ public class ChessGUI extends JFrame {
 	JMenuItem easyOption = new JMenuItem("Easy");
 	JMenuItem mediumOption = new JMenuItem("Medium");
 	JMenuItem hardOption = new JMenuItem("Hard");
+
+	JMenuItem defaultOption = new JMenuItem("Default");
+	JMenuItem whiteOption = new JMenuItem("White/Blue");
+	JMenuItem greenOption = new JMenuItem("Green/Gold");
+
+
 	JTextArea moveDisplay = new JTextArea(14, 21);
 	JTextArea capturedBlack = new JTextArea(3, 16);
 	JTextArea capturedWhite = new JTextArea(3, 16);
@@ -126,19 +142,6 @@ public class ChessGUI extends JFrame {
 
 				JButton currentButton = boardButtons[row][col];
 
-				// Set the colours of the board
-				if (row % 2 == 0) {
-					if (col % 2 != 0) {
-						currentButton.setBackground(darkBg);
-					} else {
-						currentButton.setBackground(lightBg);
-					}
-				} else if (col % 2 != 0) {
-					currentButton.setBackground(lightBg);
-				} else {
-					currentButton.setBackground(darkBg);
-				}
-
 				// Draw the pieces on the board
 				currentButton.setForeground(Color.BLACK);
 				String pieceText = board.getPieceAt(row, col).toString();
@@ -149,6 +152,7 @@ public class ChessGUI extends JFrame {
 				currentButton.addActionListener(new MyActionListener());
 			}
 		}
+		resetColours();
 		updateCaptured();
 
 		return mainPanel;
@@ -164,6 +168,14 @@ public class ChessGUI extends JFrame {
 		difficulty.add(hardOption);
 		hardOption.addActionListener(new MyActionListener());
 
+		JMenu theme = new JMenu("Theme");
+		theme.add(defaultOption);
+		defaultOption.addActionListener(new MyActionListener());
+		theme.add(whiteOption);
+		whiteOption.addActionListener(new MyActionListener());
+		theme.add(greenOption);
+		greenOption.addActionListener(new MyActionListener());
+
 		// Listen for clicks on reset button
 		reset.addActionListener(new MyActionListener());
 
@@ -177,6 +189,7 @@ public class ChessGUI extends JFrame {
 
 		// Adding Menu Items
 		menu.add(difficulty);
+		menu.add(theme);
 		menu.add(credits);
 		menu.add(exit);
 
@@ -260,15 +273,14 @@ public class ChessGUI extends JFrame {
 		capturedWhite.setText("");
 		capturedBlack.setText("");
 
-
 		// Add counts for white pieces
 		String capText = "";
 		for (int i = 0; i < whiteCount.length; i++) {
 			if (whiteCount[i] > 0) {
-				capText += String.format("%" + whiteCount[i] + "s", "").replace(' ',
-						whitePieces[i]);
+				capText += String.format("%" + whiteCount[i] + "s", "")
+						.replace(' ', whitePieces[i]);
 			}
-			
+
 			if (i == 0) {
 				capText += "\n";
 			}
@@ -279,8 +291,8 @@ public class ChessGUI extends JFrame {
 		capText = "";
 		for (int i = 0; i < blackCount.length; i++) {
 			if (blackCount[i] > 0) {
-				capText += String.format("%" + blackCount[i] + "s", "").replace(' ',
-						blackPieces[i]);
+				capText += String.format("%" + blackCount[i] + "s", "")
+						.replace(' ', blackPieces[i]);
 			}
 
 			if (i == 0) {
@@ -334,20 +346,29 @@ public class ChessGUI extends JFrame {
 				board.reset();
 				updatePieces();
 				resetColours();
-			}
-			if (e.getSource() == undo) {
+			} else if (e.getSource() == undo) {
 				board.undo();
 				board.undo();
 				moves -= 2;
 				updatePieces();
 				resetColours();
-			}
-			if (e.getSource() == credits) {
+			} else if (e.getSource() == defaultOption) {
+				darkBg = defaultThemeDark;
+				lightBg = defaultThemeLight;
+				resetColours();
+			} else if (e.getSource() == whiteOption) {
+				darkBg = blueThemeDark;
+				lightBg = blueThemeLight;
+				resetColours();
+			} else if (e.getSource() == greenOption) {
+				darkBg = aussieThemeDark;
+				lightBg = aussieThemeLight;
+				resetColours();
+			} else if (e.getSource() == credits) {
 				JOptionPane.showMessageDialog(frame,
 						"Copyright © 2017 Mitchell Woollatt", "Credits",
 						JOptionPane.INFORMATION_MESSAGE);
-			}
-			if (e.getSource() == exit) {
+			} else if (e.getSource() == exit) {
 				System.exit(0);
 			}
 			for (int row = 0; row < Board.ROWS; row++) {

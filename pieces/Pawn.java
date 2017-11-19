@@ -8,7 +8,6 @@ import game.Position;
 
 public class Pawn extends Piece {
 	private int[] directions = new int[3];
-	private int maxDistance = 1;
 
 	// Unlike other pieces, pawn can only go one direction
 	// Chooses correct direction based on colour

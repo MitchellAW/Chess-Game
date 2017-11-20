@@ -51,6 +51,7 @@ public class Pawn extends Piece {
 						Object pieceAt = board
 								.getPieceAt(curr.positionAt(directions[i], j));
 						if (pieceAt instanceof Piece) {
+							// Don't allow pawn to go through other pieces
 							break;
 						} else {
 							moves.add(new Move(board, curr, curr.positionAt(directions[i], j)));

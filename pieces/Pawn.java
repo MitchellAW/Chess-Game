@@ -8,6 +8,7 @@ import game.Position;
 
 public class Pawn extends Piece {
 	private int[] directions = new int[3];
+	private boolean queen = false;
 
 	// Unlike other pieces, pawn can only go one direction
 	// Chooses correct direction based on colour
@@ -62,6 +63,14 @@ public class Pawn extends Piece {
 		}
 
 		return moves;
+	}
+	
+	public boolean isQueen() {
+		return this.queen;
+	}
+	
+	public void setQueen(boolean queen) {
+		this.queen = queen;
 	}
 
 	// Max distance of pawn is 2 if hasn't moved

@@ -39,6 +39,10 @@ public class Move {
 		return this.pieceTaken;
 	}
 	
+	public boolean isValid() {
+		return this.startPosition.isValid() && this.endPosition.isValid();
+	}
+	
 	@Override
 	public String toString() {
 		String movementText = "";		

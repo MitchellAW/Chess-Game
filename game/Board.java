@@ -53,25 +53,15 @@ public class Board {
 		}
 	}
 
-	public Board(Board other) {
-		for (int row = 0; row < other.board.length; row++) {
-			for (int col = 0; col < other.board[row].length; col++) {
-				if (other.board[row][col] != null
-						&& other.board[row][col].equals("")) {
-					// this.board[row][col] = "";
-				} else if (other.board[row][col] instanceof Piece) {
-					this.board[row][col] = ((Piece) other.board[row][col])
-							.copy();
-				}
-			}
-		}
-	}
-
 	// Undo all moves that have been made
 	public void reset() {
 		while (this.moveHistory.size() > 0) {
 			undo();
 		}
+	}
+	
+	public void clear() {
+		this.board = new Piece[ROWS][COLS];
 	}
 
 	public List<Move> getMoveHistory() {
@@ -82,9 +72,8 @@ public class Board {
 	public boolean isValid(Piece piece, Position position) {
 		if (position.isValid() == false) {
 			return false;
-		} else if (getPieceAt(position) instanceof Piece) {
-			if (((Piece) getPieceAt(position)).getColour() == piece
-					.getColour()) {
+		} else if (getPieceAt(position) != null) {
+			if (getPieceAt(position).getColour() == piece.getColour()) {
 				return false;
 			}
 
@@ -124,8 +113,29 @@ public class Board {
 	public void newPiece(Position position, Piece piece) {
 		int[] points = position.getIndexes();
 		this.board[points[0]][points[1]] = piece;
-		if (piece instanceof Piece) {
-			((Piece) piece).setPosition(position);
+		if (piece != null) {
+			piece.setPosition(position);
+		}
+	}
+
+	public void updatePieces() {
+		for (int row = 0; row < this.board.length; row++) {
+			for (int col = 0; col < this.board[row].length; col++) {
+				Piece currentPiece = this.board[row][col];
+				if (currentPiece instanceof Pawn) {
+					if (currentPiece.getColour().equals("White")) {
+						if (currentPiece.getPosition().getRow() >= 8) {
+							this.board[row][col] = new Queen(
+									currentPiece.getPosition(), "White");
+						}
+					} else {
+						if (currentPiece.getPosition().getRow() <= 1) {
+							this.board[row][col] = new Queen(
+									currentPiece.getPosition(), "Black");
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -155,49 +165,40 @@ public class Board {
 	// check, then they are not in checkmate
 	public boolean isCheckmate(String colour) {
 		List<Move> moves = getAllMoves(colour);
-		Board boardCopy = this.copy();
-
-		if (boardCopy.isCheck(colour) == false) {
+		
+		if (isCheck(colour) == false) {
 			return false;
 		}
 		for (int i = 0; i < moves.size(); i++) {
-			boardCopy.move(moves.get(i));
-			if (boardCopy.isCheck(colour) == false) {
-				boardCopy.undo();
+			move(moves.get(i));
+			if (isCheck(colour) == false) {
+				undo();
 				return false;
 			}
-			boardCopy.undo();
+			undo();
 		}
 		return true;
 	}
 
 	// Determine if side is currently in stalemate where the player whose turn
 	// it is to move is not in check but has no legal move.
-	public boolean isStalemate(String colour) {
-		List<Move> moves = getAllMoves(colour);
+	public boolean isStalemate() {
+		List<Move> whiteMoves = getAllLegalMoves("White");
+		List<Move> blackMoves = getAllLegalMoves("Black");
 
 		// Player must not be in check in order to be in a stalemate
-		if (isCheck(colour) == false) {
-			// Check if any moves lead don't lead to check
-			for (int i = 0; i < moves.size(); i++) {
-				move(moves.get(i));
-				if (isCheck(colour) == false) {
-					undo();
-					return false;
-				}
-				undo();
-			}
+		if (!isCheck("Black") && blackMoves.size() <= 0) {
 			return true;
-		} else {
-			return false;
+		} else if (!isCheck("White") && whiteMoves.size() <= 0) {
+			return true;
 		}
+		return false;
 
 	}
 
 	// Determine if the game is over or not
 	public boolean isGameOver() {
-		return isCheckmate("Black") || isStalemate("Black")
-				|| isCheckmate("White") || isStalemate("Black");
+		return isCheckmate("Black") || isStalemate() || isCheckmate("White");
 	}
 
 	// Gathers all of the possible moves that can be made by colour
@@ -212,7 +213,9 @@ public class Board {
 					List<Move> currentMoves = currPiece.getMoves(this);
 					for (int i = 0; i < currentMoves.size(); i++) {
 						// Add all the pieces moves
-						allMoves.add(currentMoves.get(i));
+						if (currentMoves.get(i).isValid()) {
+							allMoves.add(currentMoves.get(i));
+						}
 					}
 				}
 			}
@@ -228,7 +231,7 @@ public class Board {
 		for (int i = 0; i < allMoves.size(); i++) {
 			Move currentMove = allMoves.get(i);
 			move(currentMove);
-			if (isCheck(colour) == false) {
+			if (!isCheck(colour)) {
 				allLegalMoves.add(currentMove);
 			}
 			undo();
@@ -250,10 +253,12 @@ public class Board {
 			// Get the positions the piece moved to and from
 			Position startPosition = lastMove.getStartPosition();
 			Position endPosition = lastMove.getEndPosition();
-			
+
 			// Decrement moveCount
-			pieceMoved.decrementMoveCount();
-			
+			if (pieceMoved != null) {
+				pieceMoved.decrementMoveCount();
+			}
+
 			// Undo the move
 			newPiece(startPosition, pieceMoved);
 			newPiece(endPosition, pieceTaken);
@@ -296,18 +301,20 @@ public class Board {
 	}
 
 	public void move(Move move) {
-		if (move.getPieceMoved() != null) {
-			move.getPieceMoved().incrementMoveCount();
-		}
-		newPiece(move.getStartPosition(), null);
-		newPiece(move.getEndPosition(), move.getPieceMoved());
+		if (move != null) {
+			if (move.getPieceMoved() != null) {
+				move.getPieceMoved().incrementMoveCount();
+			}
+			newPiece(move.getStartPosition(), null);
+			newPiece(move.getEndPosition(), move.getPieceMoved());
 
-		this.moveHistory.add(move);
+			this.moveHistory.add(move);
 
-		if (this.currentPlayer == "White") {
-			this.currentPlayer = "Black";
-		} else {
-			this.currentPlayer = "White";
+			if (this.currentPlayer == "White") {
+				this.currentPlayer = "Black";
+			} else {
+				this.currentPlayer = "White";
+			}
 		}
 	}
 
@@ -325,7 +332,14 @@ public class Board {
 		String boardString = "";
 		for (int i = 0; i < this.board.length; i++) {
 			for (int j = 0; j < this.board[i].length; j++) {
-				boardString += "|" + board[i][j] + "";
+				
+				boardString += "|";
+				
+				if (this.board[i][j] != null) {
+					boardString += this.board[i][j].toString();
+				} else {
+					boardString += " ";
+				}
 			}
 			if (i != this.board.length - 1) {
 				boardString += "|\n";
@@ -334,9 +348,5 @@ public class Board {
 			}
 		}
 		return boardString;
-	}
-
-	public Board copy() {
-		return new Board(this);
 	}
 }

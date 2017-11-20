@@ -142,7 +142,7 @@ public class ChessGUI extends JFrame {
 			for (int col = 0; col < Board.COLS; col++) {
 				boardButtons[row][col] = new JButton();
 				JButton currentButton = boardButtons[row][col];
-				
+
 				currentButton.setVisible(true);
 				currentButton.setOpaque(true);
 
@@ -247,6 +247,22 @@ public class ChessGUI extends JFrame {
 		}
 	}
 
+	public void checkBoard() {
+		if (board.isStalemate()) {
+			JOptionPane.showMessageDialog(frame, "Stalemate. Draw.",
+					"Stalemate", JOptionPane.INFORMATION_MESSAGE);
+		} else if (board.isCheckmate("White")) {
+			JOptionPane.showMessageDialog(frame, "Checkmate. You Lose.",
+					"Checkmate", JOptionPane.INFORMATION_MESSAGE);
+		} else if (board.isCheckmate("Black")) {
+			JOptionPane.showMessageDialog(frame, "Checkmate. You Win.",
+					"Checkmate", JOptionPane.INFORMATION_MESSAGE);
+		} else if (board.isCheck("White")) {
+			JOptionPane.showMessageDialog(frame, "You are in check.", "Check",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+
 	// Display all moves available at position
 	public void showMoves(Position position) {
 		if (board.getPieceAt(position) instanceof Piece) {
@@ -315,37 +331,27 @@ public class ChessGUI extends JFrame {
 	// Computer will make it's move
 	public void computerMove() {
 		// Make computer's move
-		if (board.isCheckmate("Black") == false) {
-			Move computerMove = computer.getMove(board.copy());
+		if (!board.isCheckmate("Black")) {
+			Move computerMove = computer.getMove(board);
 			int[] move;
 
-			board.move(computerMove);
-			updatePieces();
-			updateMoveHistory();
+			if (computerMove != null) {
 
-			// Highlight opponent's move for clarity
-			move = computerMove.getStartPosition().getIndexes();
-			boardButtons[move[0]][move[1]].setForeground(Color.RED.darker());
+				board.move(computerMove);
+				updatePieces();
+				updateMoveHistory();
 
-			move = computerMove.getEndPosition().getIndexes();
-			boardButtons[move[0]][move[1]].setBackground(highlightDark);
-			moves++;
+				// Highlight opponent's move for clarity
+				move = computerMove.getStartPosition().getIndexes();
+				boardButtons[move[0]][move[1]]
+						.setForeground(Color.RED.darker());
 
-			if (board.isCheckmate("White") == true) {
-				JOptionPane.showMessageDialog(frame, "Checkmate. You Lose.",
-						"Checkmate", JOptionPane.INFORMATION_MESSAGE);
-			} else if (board.isCheck("White")) {
-				JOptionPane.showMessageDialog(frame, "You are in check.",
-						"Check", JOptionPane.INFORMATION_MESSAGE);
+				move = computerMove.getEndPosition().getIndexes();
+				boardButtons[move[0]][move[1]].setBackground(highlightDark);
+				moves++;
 
-			} else if (board.isStalemate("White")) {
-				JOptionPane.showMessageDialog(frame,
-						"You are in a stalemate. You win.", "Stalemate",
-						JOptionPane.INFORMATION_MESSAGE);
+				checkBoard();
 			}
-		} else {
-			JOptionPane.showMessageDialog(frame, "Checkmate. You Win.",
-					"Checkmate", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
@@ -356,6 +362,7 @@ public class ChessGUI extends JFrame {
 				board.reset();
 				updatePieces();
 				resetColours();
+				moves = 0;
 			} else if (e.getSource() == undo) {
 				board.undo();
 				board.undo();
@@ -414,27 +421,18 @@ public class ChessGUI extends JFrame {
 								updateMoveHistory();
 								updateCaptured();
 								updatePieces();
+								checkBoard();
 								moves++;
 
 								computerMove();
 							} else {
 								board.undo();
 							}
-						} else if (board.isCheckmate("White") == true) {
-							JOptionPane.showMessageDialog(frame,
-									"Checkmate. You Lose.", "Checkmate",
-									JOptionPane.INFORMATION_MESSAGE);
-						} else if (board.isStalemate("Black")) {
-							JOptionPane.showMessageDialog(frame,
-									"You are in a stalemate. You lose.",
-									"Stalemate",
-									JOptionPane.INFORMATION_MESSAGE);
-
 						}
 					}
-
 				}
 			}
+			board.updatePieces();
 			updateCaptured();
 			updateMoveHistory();
 			updatePieces();

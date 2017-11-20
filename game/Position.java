@@ -4,22 +4,22 @@ public class Position {
 	private char column;
 	private int row;
 
+	public Position(char column, int row) {
+		this.column = column;
+		this.row = row;
+	}
+
+	public Position(int row, int column) {
+		this.column = (char) (column + 97);
+		this.row = 8 - row;
+	}
+	
 	public char getColumn() {
 		return this.column;
 	}
 
 	public int getRow() {
 		return this.row;
-	}
-
-	Position(char column, int row) {
-		this.column = column;
-		this.row = row;
-	}
-
-	Position(int row, int column) {
-		this.column = (char) (column + 97);
-		this.row = 8 - row;
 	}
 
 	// Takes integer from 1-8 to choose direction (1=North, 5=South)

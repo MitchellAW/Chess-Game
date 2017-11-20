@@ -141,9 +141,10 @@ public class ChessGUI extends JFrame {
 		for (int row = 0; row < Board.ROWS; row++) {
 			for (int col = 0; col < Board.COLS; col++) {
 				boardButtons[row][col] = new JButton();
-				boardButtons[row][col].setVisible(true);
-
 				JButton currentButton = boardButtons[row][col];
+				
+				currentButton.setVisible(true);
+				currentButton.setOpaque(true);
 
 				// Draw the pieces on the board
 				currentButton.setForeground(Color.BLACK);
@@ -264,7 +265,6 @@ public class ChessGUI extends JFrame {
 
 	public void updateMoveHistory() {
 		List<Move> moveHistory = board.getMoveHistory();
-		String captured;
 		moveDisplay.setText("");
 
 		for (int i = 0; i < moveHistory.size(); i++) {

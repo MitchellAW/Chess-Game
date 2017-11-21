@@ -11,14 +11,33 @@ import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
 
+/**
+ * The chess board, keeps track of all the pieces, their positions, the
+ * move history of the match and the current player.
+ * @author Mitchell
+ *
+ */
 public class Board {
-
-	public static final int ROWS = 8;
-	public static final int COLS = 8;
-	private Piece[][] board = new Piece[ROWS][COLS];
+	
+	/**
+	 * The chess board. An array of chess pieces, each with their own 
+	 * positions.
+	 */
+	private Piece[][] board = new Piece[8][8];
+	/**
+	 * A list of all the chess moves that have been made throughout the match.
+	 */
 	private List<Move> moveHistory = new ArrayList<Move>();
-	private String currentPlayer = "Black";
+	/**
+	 * The alliance colour of the current player whose turn it is. White goes
+	 * first.
+	 */
+	private String currentPlayer = "White";
 
+	/**
+	 * Creates a chess board and fills it with all the default chess pieces 
+	 * in their correct positions.
+	 */
 	public Board() {
 		// Reset Move History
 		moveHistory = new ArrayList<Move>();
@@ -53,44 +72,30 @@ public class Board {
 		}
 	}
 
-	// Undo all moves that have been made
-	public void reset() {
-		while (this.moveHistory.size() > 0) {
-			undo();
+	/**
+	 * Creates a copy of another chess board.
+	 * @param other The chess board to copy.
+	 */
+	public Board(Board other) {
+		this.currentPlayer = other.currentPlayer;
+		for (int i = 0; i < other.moveHistory.size(); i++) {
+			this.moveHistory.add(new Move(other.moveHistory.get(i)));
 		}
-	}
-	
-	public void clear() {
-		this.board = new Piece[ROWS][COLS];
-	}
-
-	public List<Move> getMoveHistory() {
-		return this.moveHistory;
-	}
-
-	// Will return if the move is valid
-	public boolean isValid(Piece piece, Position position) {
-		if (position.isValid() == false) {
-			return false;
-		} else if (getPieceAt(position) != null) {
-			if (getPieceAt(position).getColour() == piece.getColour()) {
-				return false;
+		for (int row = 0; row < other.board.length; row++) {
+			for (int col = 0; col < other.board[row].length; col++) {
+				if (other.board[row][col] != null) {
+					this.board[row][col] = other.board[row][col].copy();
+				}
 			}
-
-		}
-		return true;
-	}
-
-	// Will return the colour of the piece at position
-	public String getColourAt(Position position) {
-		if (getPieceAt(position) instanceof Piece) {
-			return ((Piece) getPieceAt(position)).getColour();
-		} else {
-			return "";
 		}
 	}
 
-	// Will return object at position using position
+	/**
+	 * Gets the chess piece that is in any valid position within the chess 
+	 * board.
+	 * @param position The position of the piece.
+	 * @return The chess piece at the position.
+	 */
 	public Piece getPieceAt(Position position) {
 		if (!position.isValid()) {
 			return null;
@@ -100,7 +105,12 @@ public class Board {
 		}
 	}
 
-	// Will return the object at position using row/column
+	/**
+	 * Gets the chess piece at any valid row and column within the chess board.
+	 * @param row The row of the chess board.
+	 * @param column The column of the chess board.
+	 * @return The piece at the row and column.
+	 */
 	public Piece getPieceAt(int row, int column) {
 		if (!new Position(row, column).isValid()) {
 			return null;
@@ -109,7 +119,11 @@ public class Board {
 		}
 	}
 
-	// Will place a new piece at position onto the board
+	/**
+	 * Places a chess piece at any valid position on the chess board.
+	 * @param position The position to place the chess piece in.
+	 * @param piece The piece to place on the chess board.
+	 */
 	public void newPiece(Position position, Piece piece) {
 		int[] points = position.getIndexes();
 		this.board[points[0]][points[1]] = piece;
@@ -118,90 +132,64 @@ public class Board {
 		}
 	}
 
-	public void updatePieces() {
-		for (int row = 0; row < this.board.length; row++) {
-			for (int col = 0; col < this.board[row].length; col++) {
-				Piece currentPiece = this.board[row][col];
-				if (currentPiece instanceof Pawn) {
-					if (currentPiece.getColour().equals("White")) {
-						if (currentPiece.getPosition().getRow() >= 8) {
-							this.board[row][col] = new Queen(
-									currentPiece.getPosition(), "White");
-						}
-					} else {
-						if (currentPiece.getPosition().getRow() <= 1) {
-							this.board[row][col] = new Queen(
-									currentPiece.getPosition(), "Black");
-						}
-					}
-				}
+	/**
+	 * Will perform the chess move, moving the chess piece that is moved from
+	 * the starting position of the move to the end position of the move.
+	 * @param move The chess move.
+	 */
+	public void move(Move move) {
+		if (move != null) {
+			if (move.getPieceMoved() != null) {
+				move.getPieceMoved().incrementMoveCount();
 			}
+			// Make the move
+			newPiece(move.getStartPosition(), null);
+			newPiece(move.getEndPosition(), move.getPieceMoved());
+
+			// Add the move to the history and switch current player
+			this.moveHistory.add(move);
+			switchPlayer();
 		}
 	}
+	
+	/**
+	 * Will move any chess piece from starting position to the end position.
+	 * @param start The starting position of the chess move.
+	 * @param end The end position of the chess move.
+	 */
+	public void move(Position start, Position end) {
+		move(new Move(this, start, end));
+	}
 
-	// Will return true if colour is currently in check
-	public boolean isCheck(String colour) {
-		String oppColour = "Black";
-		if (colour.equals("Black")) {
-			oppColour = "White";
-		}
+	/**
+	 * Undoes the last move performed throughout the chess game
+	 */
+	public void undo() {
+		if (this.moveHistory.size() > 0) {
+			// Get the last move performed
+			Move lastMove = this.moveHistory.get(moveHistory.size() - 1);
 
-		// Loop through opponents moves
-		List<Move> oppMoves = getAllMoves(oppColour);
-		for (int i = 0; i < oppMoves.size(); i++) {
-			// Check if king is in path of move
-			if (getPieceAt(oppMoves.get(i).getEndPosition()) instanceof King) {
-				if (((King) getPieceAt(oppMoves.get(i).getEndPosition()))
-						.getColour().equals(colour)) {
-					return true;
-				}
+			// Undo the move
+			newPiece(lastMove.getStartPosition(), lastMove.getPieceMoved());
+			newPiece(lastMove.getEndPosition(), lastMove.getPieceCaptured());
+
+			// Decrement moveCount of piece moved back
+			if (lastMove.getPieceMoved() != null) {
+				lastMove.getPieceMoved().decrementMoveCount();
 			}
+			
+			// Remove the last move from the history and switch current player
+			this.moveHistory.remove(moveHistory.size() - 1);
+			switchPlayer();
 		}
-		return false;
 	}
 
-	// Will return true if the colour is currently in checkmate.
-	// Checks every move colour can make, if any of them can get them out of
-	// check, then they are not in checkmate
-	public boolean isCheckmate(String colour) {
-		List<Move> moves = getAllMoves(colour);
-		
-		if (isCheck(colour) == false) {
-			return false;
-		}
-		for (int i = 0; i < moves.size(); i++) {
-			move(moves.get(i));
-			if (isCheck(colour) == false) {
-				undo();
-				return false;
-			}
-			undo();
-		}
-		return true;
-	}
-
-	// Determine if side is currently in stalemate where the player whose turn
-	// it is to move is not in check but has no legal move.
-	public boolean isStalemate() {
-		List<Move> whiteMoves = getAllLegalMoves("White");
-		List<Move> blackMoves = getAllLegalMoves("Black");
-
-		// Player must not be in check in order to be in a stalemate
-		if (!isCheck("Black") && blackMoves.size() <= 0) {
-			return true;
-		} else if (!isCheck("White") && whiteMoves.size() <= 0) {
-			return true;
-		}
-		return false;
-
-	}
-
-	// Determine if the game is over or not
-	public boolean isGameOver() {
-		return isCheckmate("Black") || isStalemate() || isCheckmate("White");
-	}
-
-	// Gathers all of the possible moves that can be made by colour
+	/**
+	 * Gets a list of all the possible moves that can be performed by a
+	 * particular alliance colour.
+	 * @param colour The alliance colour of the player (White/Black).
+	 * @return The list of all the possible moves that can be performed.
+	 */
 	public List<Move> getAllMoves(String colour) {
 		List<Move> allMoves = new ArrayList<Move>();
 
@@ -223,7 +211,13 @@ public class Board {
 		return allMoves;
 	}
 
-	// Counts all of the possible moves that can be made by colour
+	/**
+	 * Gets a list of all the possible, and legal moves that can be performed
+	 * by a particular alliance colour. If a move leads to check, then it is 
+	 * not legal.
+	 * @param colour The alliance colour of the player (White/Black).
+	 * @return The list of all the possible legal moves that can be performed.
+	 */
 	public List<Move> getAllLegalMoves(String colour) {
 		List<Move> allMoves = getAllMoves(colour);
 		List<Move> allLegalMoves = new ArrayList<Move>();
@@ -239,54 +233,138 @@ public class Board {
 		return allLegalMoves;
 	}
 
-	// Undoes the changes made by the last move, using the moveHistory list
-	public void undo() {
-		if (this.moveHistory.size() > 0) {
+	/**
+	 * Checks if the chess board is currently in a stalemate.
+	 * @return true if the chess board is currently in a stalemate.
+	 */
+	public boolean isStalemate() {
+		List<Move> whiteMoves = getAllLegalMoves("White");
+		List<Move> blackMoves = getAllLegalMoves("Black");
 
-			// Get the last move performed
-			Move lastMove = this.moveHistory.get(moveHistory.size() - 1);
+		// Player must not be in check in order to be in a stalemate
+		if (!isCheck("Black") && blackMoves.size() <= 0) {
+			return true;
+		} else if (!isCheck("White") && whiteMoves.size() <= 0) {
+			return true;
+		}
+		return false;
 
-			// Get the pieces moved and taken
-			Piece pieceMoved = lastMove.getPieceMoved();
-			Piece pieceTaken = lastMove.getPieceTaken();
+	}
 
-			// Get the positions the piece moved to and from
-			Position startPosition = lastMove.getStartPosition();
-			Position endPosition = lastMove.getEndPosition();
+	/**
+	 * Checks if any pieces owned by a particular alliance colour are
+	 * currently in check.
+	 * @param colour The alliance colour of the of the player (White/Black).
+	 * @return true if the player is currently in check.
+	 */
+	public boolean isCheck(String colour) {
+		String oppColour = "Black";
+		if (colour.equals("Black")) {
+			oppColour = "White";
+		}
 
-			// Decrement moveCount
-			if (pieceMoved != null) {
-				pieceMoved.decrementMoveCount();
+		// Loop through opponents moves
+		List<Move> oppMoves = getAllMoves(oppColour);
+		for (int i = 0; i < oppMoves.size(); i++) {
+			// Check if king is in path of move
+			if (getPieceAt(oppMoves.get(i).getEndPosition()) instanceof King) {
+				if (((King) getPieceAt(oppMoves.get(i).getEndPosition()))
+						.getColour().equals(colour)) {
+					return true;
+				}
 			}
+		}
+		return false;
+	}
 
-			// Undo the move
-			newPiece(startPosition, pieceMoved);
-			newPiece(endPosition, pieceTaken);
+	/**
+	 * Checks if a particular alliance colour is in checkmate. Loops through
+	 * all the possible moves of the player, performs the move and then checks
+	 * if the player is still in check. If any of the moves get the player out
+	 * of check, then the player is not in checkmate.
+	 * @param colour The alliance colour of the player (White/Black).
+	 * @return true if the player is in checkmate.
+	 */
+	public boolean isCheckmate(String colour) {
+		List<Move> moves = getAllMoves(colour);
 
-			// Remove the last move from the history
-			this.moveHistory.remove(moveHistory.size() - 1);
+		if (isCheck(colour) == false) {
+			return false;
+		}
+		for (int i = 0; i < moves.size(); i++) {
+			move(moves.get(i));
+			if (isCheck(colour) == false) {
+				undo();
+				return false;
+			}
+			undo();
+		}
+		return true;
+	}
+
+	/**
+	 * Checks if the chess board is in a game over state. If the chess board
+	 * is in checkmate or stalemate, then the game is over.
+	 * @return true if the game is over.
+	 */
+	public boolean isGameOver() {
+		return isCheckmate("Black") || isCheckmate("White") || isStalemate();
+	}
+
+	/**
+	 * Replaces any pawns at the edge of the board with a queen. 
+	 * Loops through the pieces and checks the positions of the pawns, if any
+	 * pawn has reached their edge, then they are automatically replaced with
+	 * a queen.
+	 */
+	public void updatePieces() {
+		for (int row = 0; row < this.board.length; row++) {
+			for (int col = 0; col < this.board[row].length; col++) {
+				Piece currentPiece = this.board[row][col];
+				if (currentPiece instanceof Pawn) {
+					if (currentPiece.isWhite()) {
+						if (currentPiece.getPosition().getRow() >= 8) {
+							this.board[row][col] = new Queen(
+									currentPiece.getPosition(), "White");
+						}
+					} else {
+						if (currentPiece.getPosition().getRow() <= 1) {
+							this.board[row][col] = new Queen(
+									currentPiece.getPosition(), "Black");
+						}
+					}
+				}
+			}
 		}
 	}
 
+	/**
+	 * Counts the number of each different chess piece of a particular alliance
+	 * colour in the chess board. The number of different pieces are returned
+	 * in this format: {Pawns, Rooks, Knights, Bishops, Queens, Kings}
+	 * @param colour The alliance colour of the player (White/Black).
+	 * @return An array of integers, representing the number of Pawns,
+	 * Rooks, Knights, Bishops, Queens and Kings (in that order).
+	 */
 	public int[] countPieces(String colour) {
-
 		// Number Of Pawns, Rooks, Knights, Bishops, Queens and Kings
 		int[] pieceCounts = { 0, 0, 0, 0, 0, 0 };
 
-		for (int i = 0; i < this.board.length; i++) {
-			for (int j = 0; j < this.board[i].length; j++) {
-				if (getColourAt(new Position(i, j)).equals(colour)) {
-					if (this.board[i][j] instanceof Pawn) {
+		for (int row = 0; row < this.board.length; row++) {
+			for (int col = 0; col < this.board[row].length; col++) {
+				if (this.board[row][col] != null
+						&& this.board[row][col].getColour().equals(colour)) {
+					if (this.board[row][col] instanceof Pawn) {
 						pieceCounts[0]++;
-					} else if (this.board[i][j] instanceof Rook) {
+					} else if (this.board[row][col] instanceof Rook) {
 						pieceCounts[1]++;
-					} else if (this.board[i][j] instanceof Knight) {
+					} else if (this.board[row][col] instanceof Knight) {
 						pieceCounts[2]++;
-					} else if (this.board[i][j] instanceof Bishop) {
+					} else if (this.board[row][col] instanceof Bishop) {
 						pieceCounts[3]++;
-					} else if (this.board[i][j] instanceof Queen) {
+					} else if (this.board[row][col] instanceof Queen) {
 						pieceCounts[4]++;
-					} else if (this.board[i][j] instanceof King) {
+					} else if (this.board[row][col] instanceof King) {
 						pieceCounts[5]++;
 					}
 				}
@@ -295,53 +373,118 @@ public class Board {
 		return pieceCounts;
 	}
 
-	// Makes the move and stores its history in moves
-	public void move(Position start, Position end) {
-		move(new Move(this, start, end));
+	/**
+	 * Returns the current value/score of the chess board in its current state.
+	 * If black is in a favourable position, the score is higher, if white is
+	 * in a favourable position, the score is lower. Loops through and uses
+	 * the different values of each piece. Needs to be changed for a more 
+	 * accurate evaluation of the board state.
+	 * @return The score evaluation of the board state.
+	 */
+	public int score() {
+		int score = 0;
+		if (isCheckmate("Black")) {
+			return Integer.MIN_VALUE;
+		} else if (isCheckmate("White")) {
+			return Integer.MAX_VALUE;
+		}
+		for (int row = 0; row < this.board.length; row++) {
+			for (int col = 0; col < this.board[row].length; col++) {
+				if (this.board[row][col] != null) {
+					if (!this.board[row][col].isWhite()) {
+						score += this.board[row][col].getValue();
+					} else {
+						score -= this.board[row][col].getValue();
+					}
+				}
+			}
+		}
+		return score;
 	}
 
-	public void move(Move move) {
-		if (move != null) {
-			if (move.getPieceMoved() != null) {
-				move.getPieceMoved().incrementMoveCount();
-			}
-			newPiece(move.getStartPosition(), null);
-			newPiece(move.getEndPosition(), move.getPieceMoved());
-
-			this.moveHistory.add(move);
-
-			if (this.currentPlayer == "White") {
-				this.currentPlayer = "Black";
-			} else {
-				this.currentPlayer = "White";
-			}
+	/**
+	 * Undoes all moves that have been performed throughout the match.
+	 */
+	public void reset() {
+		while (this.moveHistory.size() > 0) {
+			undo();
 		}
 	}
 
+	/**
+	 * Completely clears/empties the board of all chess pieces.
+	 */
+	public void clear() {
+		this.board = new Piece[8][8];
+	}
+	
+	/**
+	 * Checks if the chess piece in the position is white.
+	 * @param piecePosition The position of the piece.
+	 * @return true if the chess piece is white.
+	 */
+	public boolean isWhite(Position piecePosition) {
+		Piece pieceCheck = getPieceAt(piecePosition);
+		if (pieceCheck == null) {
+			return false;
+		}
+		return pieceCheck.isWhite();
+	}
+
+	/**
+	 * Gets the move history of the match.
+	 * @return The move history of the match.
+	 */
+	public List<Move> getMoveHistory() {
+		return this.moveHistory;
+	}
+
+	/**
+	 * Gets the alliance colour of the player that is currently performing 
+	 * their turn.
+	 * @return The alliance colour of the player.
+	 */
 	public String getCurrentPlayer() {
 		return this.currentPlayer;
 	}
 
-	// Returns the score of the board
-	public int score() {
-		return 0;
+	/**
+	 * Switches the player whose turn it is.
+	 */
+	public void switchPlayer() {
+		if (this.currentPlayer == "White") {
+			this.currentPlayer = "Black";
+		} else {
+			this.currentPlayer = "White";
+		}
 	}
 
-	// Board as a string
+	/**
+	 * Gets a copy of the current chess board.
+	 * @return The copy of the board.
+	 */
+	public Board copy() {
+		return new Board(this);
+	}
+
+	/**
+	 * Gets a string representation of the chess board
+	 */
+	@Override
 	public String toString() {
 		String boardString = "";
-		for (int i = 0; i < this.board.length; i++) {
-			for (int j = 0; j < this.board[i].length; j++) {
-				
+		for (int row = 0; row < this.board.length; row++) {
+			for (int col = 0; col < this.board[row].length; col++) {
+
 				boardString += "|";
-				
-				if (this.board[i][j] != null) {
-					boardString += this.board[i][j].toString();
+
+				if (this.board[row][col] != null) {
+					boardString += this.board[row][col].toString();
 				} else {
 					boardString += " ";
 				}
 			}
-			if (i != this.board.length - 1) {
+			if (row != this.board.length - 1) {
 				boardString += "|\n";
 			} else {
 				boardString += "|";

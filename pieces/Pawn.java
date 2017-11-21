@@ -3,34 +3,51 @@ import java.util.ArrayList;
 import java.util.List;
 
 import game.Board;
+import game.Direction;
 import game.Move;
 import game.Position;
 
+/**
+ * A pawn chess piece.
+ * @author Mitchell
+ *
+ */
 public class Pawn extends Piece {
-	private int[] directions = new int[3];
-	private boolean queen = false;
+	/**
+	 * The directions that the piece can go
+	 */
+	private Direction[] directions = new Direction[3];
 
-	// Unlike other pieces, pawn can only go one direction
-	// Chooses correct direction based on colour
+	/**
+	 * Create a pawn chess piece with a position and colour. If it is white it 
+	 * can go in all northern directions and if it is black then it can go in 
+	 * all southern directions.
+	 * @param position The position of the chess piece
+	 * @param colour The alliance colour of the player
+	 */
 	public Pawn(Position position, String colour) {
 		super(position, colour, 1);
 		if (this.getColour().equals("White")) {
-			this.directions[0] = 8;
-			this.directions[1] = 1;
-			this.directions[2] = 2;
+			this.directions[0] = Direction.NORTH_WEST;
+			this.directions[1] = Direction.NORTH;
+			this.directions[2] = Direction.NORTH_EAST;
 		} else {
-			this.directions[0] = 4;
-			this.directions[1] = 5;
-			this.directions[2] = 6;
+			this.directions[0] = Direction.SOUTH_EAST;
+			this.directions[1] = Direction.SOUTH;
+			this.directions[2] = Direction.SOUTH_WEST;
 		}
 	}
 
+	/**
+	 * Creates a copy of another pawn.
+	 * @param other The pawn to copy.
+	 */
 	public Pawn(Pawn other) {
 		super(other);
 		this.directions = other.directions;
 	}
 
-	// Get all possible (valid) moves
+	@Override
 	public List<Move> getMoves(Board board) {
 		List<Move> moves = new ArrayList<Move>();
 		Position curr = this.getPosition();
@@ -61,19 +78,14 @@ public class Pawn extends Piece {
 				}
 			}
 		}
-
 		return moves;
 	}
-	
-	public boolean isQueen() {
-		return this.queen;
-	}
-	
-	public void setQueen(boolean queen) {
-		this.queen = queen;
-	}
 
-	// Max distance of pawn is 2 if hasn't moved
+	/**
+	 * Gets the max distance that the pawn can move. If it has already moved,
+	 * then it can only move one space. If it hasn't, then it can move two
+	 * spaces.
+	 */
 	public int getMaxDistance() {
 		if (this.getMoveCount() > 0) {
 			return 1;
@@ -82,16 +94,10 @@ public class Pawn extends Piece {
 		}
 	}
 
-	public int[] getDirections() {
-		if (this.getColour().equals("White")) {
-			if (this.getPosition().getRow() == 8) {
-				this.directions = new int[8];
-				for (int i = 0; i < 8; i++) {
-					this.directions[i] = i + 1;
-				}
-				return this.directions;
-			}
-		}
+	/**
+	 * Get the directions that the pawn can move.
+	 */
+	public Direction[] getDirections() {
 		return this.directions;
 	}
 

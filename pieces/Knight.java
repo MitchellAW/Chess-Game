@@ -4,17 +4,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 import game.Board;
+import game.Direction;
 import game.Move;
 import game.Position;
 
+/**
+ * A knight. can move in an L shape.
+ * @author Mitchell
+ *
+ */
 public class Knight extends Piece {
-	private int[] directions = { 8, 1, 2, 3, 4, 5, 6, 7, 8 };
+	
+	/**
+	 * The directions that the knight can move.
+	 */
+	private Direction[] directions = { 
+			Direction.NORTH_WEST,
+			Direction.NORTH,
+			Direction.NORTH_EAST,
+			Direction.EAST,
+			Direction.SOUTH_EAST,
+			Direction.SOUTH,
+			Direction.SOUTH_WEST,
+			Direction.WEST,
+			Direction.NORTH_WEST };
+	
+	/**
+	 * The max distance that the knight can move.
+	 */
 	private int maxDistance = 5;
 
+	/**
+	 * Creates a knight in the position and with the alliance colour.
+	 * @param position The position for the knight.
+	 * @param colour The alliance colour of the knight.
+	 */
 	public Knight(Position position, String colour) {
 		super(position, colour, 3);
 	}
 
+	/**
+	 * Creates a copy of another knight.
+	 * @param other The knight to copy.
+	 */
 	public Knight(Knight other) {
 		super(other);
 	}
@@ -44,7 +76,7 @@ public class Knight extends Piece {
 		return moves;
 	}
 
-	public int[] getDirections() {
+	public Direction[] getDirections() {
 		return this.directions;
 	}
 

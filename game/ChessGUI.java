@@ -138,8 +138,8 @@ public class ChessGUI extends JFrame {
 		undo.addActionListener(new MyActionListener());
 
 		// Initialise all the buttons
-		for (int row = 0; row < Board.ROWS; row++) {
-			for (int col = 0; col < Board.COLS; col++) {
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
 				boardButtons[row][col] = new JButton();
 				JButton currentButton = boardButtons[row][col];
 
@@ -212,8 +212,8 @@ public class ChessGUI extends JFrame {
 
 	// Reset all the colours of the board
 	public void resetColours() {
-		for (int row = 0; row < Board.ROWS; row++) {
-			for (int col = 0; col < Board.COLS; col++) {
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
 				JButton currentButton = boardButtons[row][col];
 				if (row % 2 == 0) {
 					if (col % 2 != 0) {
@@ -338,8 +338,13 @@ public class ChessGUI extends JFrame {
 			if (computerMove != null) {
 
 				board.move(computerMove);
+				board.updatePieces();
 				updatePieces();
+				resetColours();
 				updateMoveHistory();
+				updateCaptured();
+				checkBoard();
+				moves++;
 
 				// Highlight opponent's move for clarity
 				move = computerMove.getStartPosition().getIndexes();
@@ -348,9 +353,6 @@ public class ChessGUI extends JFrame {
 
 				move = computerMove.getEndPosition().getIndexes();
 				boardButtons[move[0]][move[1]].setBackground(highlightDark);
-				moves++;
-
-				checkBoard();
 			}
 		}
 	}
@@ -388,8 +390,8 @@ public class ChessGUI extends JFrame {
 			} else if (e.getSource() == exit) {
 				System.exit(0);
 			}
-			for (int row = 0; row < Board.ROWS; row++) {
-				for (int col = 0; col < Board.COLS; col++) {
+			for (int row = 0; row < 8; row++) {
+				for (int col = 0; col < 8; col++) {
 					JButton currentButton = boardButtons[row][col];
 					Position currentPos = new Position(row, col);
 					Object currentPiece = board.getPieceAt(row, col);
@@ -399,7 +401,7 @@ public class ChessGUI extends JFrame {
 							&& currentButton.getBackground() != highlight) {
 
 						// Highlight available moves and set the piece position
-						if (board.getColourAt(currentPos) == "White") {
+						if (board.isWhite(currentPos)) {
 							resetColours();
 							pos = ((Piece) currentPiece).getPosition();
 							showMoves(pos);
@@ -411,16 +413,17 @@ public class ChessGUI extends JFrame {
 						}
 						// Player's move
 					} else if (e.getSource() == currentButton && moves % 2 == 0
-							&& board.getColourAt(pos) == "White") {
+							&& board.isWhite(pos)) {
 
 						if (board.isCheckmate("White") == false) {
 							// Move to the selected position
 							board.move(pos, currentPos);
 							if (board.isCheck("White") == false) {
+								board.updatePieces();
+								updatePieces();
 								resetColours();
 								updateMoveHistory();
 								updateCaptured();
-								updatePieces();
 								checkBoard();
 								moves++;
 
@@ -433,9 +436,9 @@ public class ChessGUI extends JFrame {
 				}
 			}
 			board.updatePieces();
+			updatePieces();
 			updateCaptured();
 			updateMoveHistory();
-			updatePieces();
 		}
 	}
 
